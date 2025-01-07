@@ -15,28 +15,29 @@ bool isFull(Morpion *m)
     {
         for (int j = 0; j < 3; j++)
         {
-            if (m->grille[i][j] == ' ') 
+            if (m->grille[i][j] == ' ')
             {
                 return false;
             }
         }
     }
-    
+    return true;
 }
 
-
-void initialise(){
-
+void initialise()
+{
 }
-void show(){
-
+void show()
+{
 }
-bool isValid(cell){
-    if (cell>3 || cell<3)
+bool isValid(cell)
+{
+    if (cell > 3 || cell < 3)
     {
-       return false;
+        return false;
     }
-    else{
+    else
+    {
         return true;
     }
 }
@@ -47,18 +48,7 @@ bool isValid(cell){
  * @param celly coordone y de la cellule
  * @param form la forme qui est entrée
  */
-void place(Morpion *m,int cellx,int celly,char form){
-    return m->grille[cellx][celly]=form;
+void place(Morpion *m, int cellx, int celly, char form)
+{
+    return m->grille[cellx][celly] = form;
 }
-<<<<<<< HEAD
-
-=======
-=======
-    return true;
-}
-<<<<<<< HEAD
-
-=======
->>>>>>> refs/remotes/origin/main
->>>>>>> 5aed12171a447f2be0e9ba53132603e82bc8d674
->>>>>>> refs/remotes/origin/main
