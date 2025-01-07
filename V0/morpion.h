@@ -9,5 +9,8 @@ typedef struct
 } Morpion;
 
 bool isFull(const Morpion *m);
-
+void initialise(Morpion *m);
+void show(const Morpion *m);
+bool isValid(int cell);
+void place(Morpion *m, int cell, char form);
 #endif

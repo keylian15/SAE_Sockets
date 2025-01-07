@@ -44,7 +44,7 @@ void initialise(Morpion *m)
  * show(&m);
  * @param m Pointeur vers la structure Morpion.
  */
-void show(Morpion *m)
+void show(const Morpion *m)
 {
     int count = 1;
     for (int i = 0; i < 3; i++)
@@ -70,9 +70,16 @@ void show(Morpion *m)
     }
 }
 
+
+/**
+ * verifie si la cellule existe
+ * isValid(2);
+ * @param cell numero de la cellule
+ * @return bool
+ */
 bool isValid(int cell)
 {
-    if (cell > 3 || cell < 3)
+    if (cell > 9 || cell < 1)
     {
         return false;
     }
@@ -82,14 +89,27 @@ bool isValid(int cell)
     }
 }
 
+
 /**
  * place dans la grille la forme demannder
- * place(&m,0,2,x)
- * @param cellx coordone x de la cellule
- * @param celly coordone y de la cellule
+ * place(&m,3,x);
+ * @param cell numero de la cellule
  * @param form la forme qui est entrée
  */
-void place(Morpion *m, int cellx, int celly, char form)
+void place(Morpion *m, int cell, char form)
 {
-    m->grille[cellx][celly] = form;
+    int count = 1;
+    for (int cellx = 0; cellx < 3; cellx++)
+    {
+        for (int celly = 0; celly < 3; celly++)
+        {
+            if (count==cell)
+            {
+                m->grille[cellx][celly] = form;
+            }
+            count++;
+            celly++;
+        }
+        cellx++;
+    }
 }
