@@ -22,3 +22,4 @@ bool isFull(Morpion *m)
     }
     return true;
 }
+
