@@ -1,118 +1,123 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <time.h>
-#include "morpion.h"
+#include "morpion.h"  // Inclure le fichier d'en-tête pour utiliser les fonctions du jeu
 #include "morpion.c"
-
-#define PORT 5000 // Port sur lequel le serveur écoute
+#define PORT 5000
+#define LG_MESSAGE 256
 
 int main() {
-    int server_fd, client_socket, valread;
-    struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-    char buffer[1024] = {0};
-    Morpion morpion;
+    int socketEcoute, socketDialogue;
+    struct sockaddr_in pointDeRencontreLocal, pointDeRencontreDistant;
+    socklen_t longueurAdresse;
+    char messageRecu[LG_MESSAGE];
+    int nb;
 
-    // Initialisation de la grille
-    initialise(&morpion);
+    Morpion jeu;
+    initialise(&jeu);  // Initialiser la grille
 
-    // Création du socket
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("Erreur : Création du socket");
-        exit(EXIT_FAILURE);
+    // ====== Création socket (1) ======
+    socketEcoute = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketEcoute < 0) {
+        perror("Erreur en création de la socket...");
+        exit(-1);
     }
+    printf("Socket d'écoute créée! (%d)\n", socketEcoute);
 
-    // Options du socket
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        perror("Erreur : setsockopt");
-        exit(EXIT_FAILURE);
+    // ====== Configuration Attachement Local (2) ======
+    memset(&pointDeRencontreLocal, 0x00, sizeof(pointDeRencontreLocal));
+    pointDeRencontreLocal.sin_family = AF_INET;
+    pointDeRencontreLocal.sin_addr.s_addr = htonl(INADDR_ANY);
+    pointDeRencontreLocal.sin_port = htons(PORT);
+    if (bind(socketEcoute, (struct sockaddr *)&pointDeRencontreLocal, sizeof(pointDeRencontreLocal)) < 0) {
+        perror("Erreur d'attachement de l'adresse locale...");
+        close(socketEcoute);
+        exit(-2);
     }
+    printf("Adresse locale attachée.\n");
 
-    // Configuration de l'adresse du serveur
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
-
-    // Liaison du socket avec l'adresse et le port
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        perror("Erreur : bind");
-        exit(EXIT_FAILURE);
+    // ====== Déclaration Nombre Maximum Connexions (3) ======
+    if (listen(socketEcoute, 5) < 0) {
+        perror("Erreur lors de la mise en écoute...");
+        close(socketEcoute);
+        exit(-3);
     }
-
-    // Mise en écoute des connexions entrantes
-    if (listen(server_fd, 3) < 0) {
-        perror("Erreur : listen");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("Serveur en attente de connexion sur le port %d...\n", PORT);
+    printf("En écoute sur le port %d...\n", PORT);
 
     while (1) {
-        // Acceptation d'une connexion entrante
-        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
-            perror("Erreur : accept");
-            exit(EXIT_FAILURE);
+        // ====== Attente Demande Connection (4) ======
+        printf("En attente d'une connexion...\n");
+        longueurAdresse = sizeof(pointDeRencontreDistant);
+        socketDialogue = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
+        if (socketDialogue < 0) {
+            perror("Erreur lors de l'acceptation...");
+            close(socketEcoute);
+            exit(-4);
         }
+        printf("Connexion acceptée.\n");
 
-        printf("Client connecté !\n");
+        // ====== Envoi Message de départ ======
+        char message[LG_MESSAGE] = "start";
+        send(socketDialogue, message, strlen(message) + 1, 0);
 
-        // Envoi du message "start" au client
-        send(client_socket, "start", strlen("start"), 0);
-
-        // Boucle principale pour gérer la partie
+        // ====== Boucle de jeu ======
         while (1) {
-            // Lecture de la case choisie par le client
-            memset(buffer, 0, sizeof(buffer)); // Réinitialisation du buffer
-            valread = read(client_socket, buffer, 1024);
-            if (valread <= 0) {
-                printf("Client déconnecté.\n");
+            // ====== Réception Demande du Client (5) ======
+            memset(messageRecu, 0x00, LG_MESSAGE);
+            nb = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (nb <= 0) {
+                perror("Erreur lors de la réception...");
+                close(socketDialogue);
+                continue;
+            }
+
+            int case_client = atoi(messageRecu);  // Conversion de la case choisie
+
+            if (!isValid(case_client) || jeu.grille[(case_client - 1) / 3][(case_client - 1) % 3] != ' ') {
+                printf("Coup invalide !\n");
+                continue;
+            }
+
+            place(&jeu, case_client, 'X');  // Le client joue
+            show(&jeu);  // Affichage de la grille
+
+            if (isFull(&jeu)) {
+                send(socketDialogue, "La grille est pleine.", 23, 0);
                 break;
             }
 
-            int client_choix = atoi(buffer); // Conversion du choix du client en entier
-            place(&morpion, client_choix, 'X'); // Mise à jour de la grille pour le joueur X
-            printf("Le client a joué :\n");
-            show(&morpion);
-
-            // Vérification si la grille est pleine
-            if (isFull(&morpion)) {
-                printf("Grille pleine. Fin de la partie.\n");
-                break;
+            // Le serveur joue en choisissant une case au hasard
+            int case_serveur = rand() % 9 + 1;
+            while (jeu.grille[(case_serveur - 1) / 3][(case_serveur - 1) % 3] != ' ') {
+                case_serveur = rand() % 9 + 1;
             }
+            place(&jeu, case_serveur, 'O');
+            printf("Le serveur a joué : %d\n", case_serveur);
+            show(&jeu);
 
-            // Choix aléatoire pour le serveur
-            int serveur_choix;
-            do {
-                serveur_choix = rand() % 9 + 1; // Génération d'une case aléatoire (1-9)
-            } while (morpion.grille[(serveur_choix - 1) / 3][(serveur_choix - 1) % 3] != ' ');
+            // Envoi de la mise à jour au client
+            snprintf(messageRecu, sizeof(messageRecu), "%d", case_serveur);
+            send(socketDialogue, messageRecu, strlen(messageRecu) + 1, 0);
 
-            place(&morpion, serveur_choix, 'O'); // Mise à jour de la grille pour le joueur O
-            printf("Le serveur a joué :\n");
-            show(&morpion);
-
-            // Envoi de la case choisie au client
-            memset(buffer, 0, sizeof(buffer)); // Réinitialisation du buffer
-            sprintf(buffer, "%d", serveur_choix);
-            send(client_socket, buffer, strlen(buffer), 0);
-
-            // Vérification si la grille est pleine
-            if (isFull(&morpion)) {
-                printf("Grille pleine. Fin de la partie.\n");
+            if (isFull(&jeu)) {
+                send(socketDialogue, "La grille est pleine.", 23, 0);
                 break;
             }
         }
 
-        // Fermeture de la connexion avec le client
-        close(client_socket);
-        printf("Partie terminée. En attente d'une nouvelle connexion...\n");
-
-        // Réinitialisation de la grille pour une nouvelle partie
-        initialise(&morpion);
+        // ====== Fermeture Socket Dialogue (8) ======
+        close(socketDialogue);
+        printf("Socket de dialogue fermée.\n");
     }
+
+    // ====== Fermeture Socket Ecoute (9) ======
+    close(socketEcoute);
+    printf("Socket d'écoute fermée.\n");
 
     return 0;
 }

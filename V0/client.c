@@ -1,99 +1,95 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
-#include "morpion.h"
+#include "morpion.h"  // Inclure le fichier d'en-tête pour utiliser les fonctions du jeu
 #include "morpion.c"
+#define LG_MESSAGE 256
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Usage : %s <IP> <Port>\n", argv[0]);
-        return -1;
+    int descripteurSocket;
+    struct sockaddr_in sockaddrLocal, sockaddrDistant;
+    socklen_t longueurAdresse;
+    char messageRecu[LG_MESSAGE];
+    char messageEnvoye[LG_MESSAGE];
+    int nb;
+    char ip_dest[16];
+    int port_dest;
+
+    if (argc > 1) {
+        strncpy(ip_dest, argv[1], 16);
+        sscanf(argv[2], "%d", &port_dest);
+    } else {
+        printf("USAGE : %s ip port\n", argv[0]);
+        exit(-1);
     }
 
-    char *server_ip = argv[1];
-    int server_port = atoi(argv[2]);
-    int sock = 0, valread;
-    struct sockaddr_in serv_addr;
-    char buffer[1024] = {0};
-    Morpion morpion;
-    initialise(&morpion);
-
-    // Création du socket
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("Erreur : Création du socket\n");
-        return -1;
+    // Création socket
+    descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (descripteurSocket < 0) {
+        perror("Erreur en création de la socket...");
+        exit(-1);
     }
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(server_port);
+    memset(&sockaddrLocal, 0x00, sizeof(sockaddrLocal));
+    sockaddrLocal.sin_family = AF_INET;
+    sockaddrLocal.sin_addr.s_addr = htonl(INADDR_ANY);
+    sockaddrLocal.sin_port = 0;
 
-    // Conversion de l'adresse IP
-    if (inet_pton(AF_INET, server_ip, &serv_addr.sin_addr) <= 0) {
-        printf("Adresse IP invalide : %s\n", server_ip);
-        return -1;
+    if (bind(descripteurSocket, (struct sockaddr *)&sockaddrLocal, sizeof(sockaddrLocal)) < 0) {
+        perror("Erreur d'attachement de l'adresse locale...");
+        close(descripteurSocket);
+        exit(-2);
     }
 
-    // Connexion au serveur
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("Erreur : Connexion au serveur (%s:%d)\n", server_ip, server_port);
-        return -1;
+    memset(&sockaddrDistant, 0x00, sizeof(sockaddrDistant));
+    sockaddrDistant.sin_family = AF_INET;
+    sockaddrDistant.sin_port = htons(port_dest);
+    inet_aton(ip_dest, &sockaddrDistant.sin_addr);
+
+    if (connect(descripteurSocket, (struct sockaddr *)&sockaddrDistant, sizeof(sockaddrDistant)) < 0) {
+        perror("Erreur de connexion...");
+        close(descripteurSocket);
+        exit(-3);
     }
 
-    // Attente du message "start"
-    valread = read(sock, buffer, 1024);
-    if (strcmp(buffer, "start") != 0) {
-        printf("Erreur : Message 'start' non reçu\n");
-        return -1;
+    // Attendre le message de départ
+    nb = recv(descripteurSocket, messageRecu, LG_MESSAGE, 0);
+    if (nb <= 0) {
+        perror("Erreur lors de la réception...");
+        close(descripteurSocket);
+        exit(-4);
     }
-    printf("La partie commence !\n");
-    show(&morpion);
+    printf("Message du serveur : %s\n", messageRecu);
 
     while (1) {
+        // Demander au client de choisir une case
+        printf("Choisissez une case (1 à 9) : ");
         int choix;
-        printf("Choisissez une case (1-9) : ");
         scanf("%d", &choix);
 
-        if (!isValid(choix) || morpion.grille[(choix - 1) / 3][(choix - 1) % 3] != ' ') {
-            printf("Case invalide, réessayez.\n");
+        if (!isValid(choix)) {
+            printf("Choix invalide !\n");
             continue;
         }
 
-        // Envoi du choix au serveur
-        memset(buffer, 0, sizeof(buffer));
-        sprintf(buffer, "%d", choix);
-        send(sock, buffer, strlen(buffer), 0);
+        snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
+        send(descripteurSocket, messageEnvoye, strlen(messageEnvoye) + 1, 0);
 
-        // Mise à jour et affichage de la grille
-        place(&morpion, choix, 'X');
-        show(&morpion);
-
-        // Vérifier si la grille est pleine
-        if (isFull(&morpion)) {
-            printf("La grille est pleine. Match nul !\n");
-            break;
+        // Recevoir la mise à jour
+        nb = recv(descripteurSocket, messageRecu, LG_MESSAGE, 0);
+        if (nb <= 0) {
+            perror("Erreur lors de la réception...");
+            close(descripteurSocket);
+            exit(-5);
         }
-
-        // Attente du choix du serveur
-        memset(buffer, 0, sizeof(buffer));
-        valread = read(sock, buffer, 1024);
-        int serveurChoix = atoi(buffer);
-
-        // Mise à jour de la grille avec le choix du serveur
-        place(&morpion, serveurChoix, 'O');
-        printf("Le serveur a joué :\n");
-        show(&morpion);
-
-        // Vérifier si la grille est pleine après le coup du serveur
-        if (isFull(&morpion)) {
-            printf("La grille est pleine.\n");
-            break;
-        }
+        printf("Mise à jour du serveur : %s\n", messageRecu);
     }
 
-    // Fermeture de la connexion
-    close(sock);
-    printf("Partie terminée. Merci d'avoir joué !\n");
+    close(descripteurSocket);
     return 0;
 }
