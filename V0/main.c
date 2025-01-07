@@ -3,6 +3,7 @@
 
 int main()
 {
-    Morpion jeu = {{{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}}};
+    Morpion jeu;
+    initialise(&jeu);
     show(&jeu);
 }

@@ -9,7 +9,7 @@
  * @return true si la grille est pleine, false sinon.
  */
 
-bool isFull(Morpion *m)
+bool isFull(const Morpion *m)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -24,9 +24,21 @@ bool isFull(Morpion *m)
     return true;
 }
 
-void initialise()
+/**
+ * Initialise la grille en remplissant toutes les cases avec des espaces.
+ * @param m Pointeur vers la structure Morpion.
+ */
+void initialise(Morpion *m)
 {
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            m->grille[i][j] = ' ';
+        }
+    }
 }
+
 /**
  * Afficher la grille
  * show(&m);
@@ -57,7 +69,8 @@ void show(Morpion *m)
             printf("-----\n");
     }
 }
-bool isValid(cell)
+
+bool isValid(int cell)
 {
     if (cell > 3 || cell < 3)
     {
@@ -68,6 +81,7 @@ bool isValid(cell)
         return true;
     }
 }
+
 /**
  * place dans la grille la forme demannder
  * place(&m,0,2,x)
@@ -77,5 +91,5 @@ bool isValid(cell)
  */
 void place(Morpion *m, int cellx, int celly, char form)
 {
-    return m->grille[cellx][celly] = form;
+    m->grille[cellx][celly] = form;
 }
