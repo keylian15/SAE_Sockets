@@ -70,6 +70,10 @@ void show(const Morpion *m)
             printf("-----\n");
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/main
 
 /**
  * verifie si la cellule existe
@@ -77,7 +81,7 @@ void show(const Morpion *m)
  * @param cell numero de la cellule
  * @return bool
  */
-bool isValid(int cell)
+bool isValid(Morpion *m, int cell)
 {
     if (cell > 9 || cell < 1)
     {
@@ -85,7 +89,10 @@ bool isValid(int cell)
     }
     else
     {
-        return true;
+        if (m->grille[(cell - 1) / 3][(cell - 1) % 3] != ' '){
+            return true;
+        }
+        return false;
     }
 }
 
