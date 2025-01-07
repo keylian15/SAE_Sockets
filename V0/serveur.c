@@ -33,6 +33,7 @@ int main()
     pointDeRencontreLocal.sin_port = htons(PORT);
     if (bind(socketEcoute, (struct sockaddr *)&pointDeRencontreLocal, sizeof(pointDeRencontreLocal)) < 0)
     {
+        
         perror("Erreur d'attachement de l'adresse locale...");
         close(socketEcoute);
         exit(-2);
@@ -64,6 +65,8 @@ int main()
 
         // Jeu
         jeuServeur(socketDialogue);
+
+        printf("Fin\n");
     }
     // ====== Fermeture Socket Ecoute (9) ======
     close(socketEcoute);

@@ -134,6 +134,7 @@ void jeuClient(int descripteurSocket)
                 condition = true;
             }
         }
+        printf("Sorti de boucle\n");
 
         // Placer la case du client coté client.
         place(&jeu, choix, 'X');
@@ -159,7 +160,7 @@ void jeuClient(int descripteurSocket)
 
 void jeuServeur(int socketDialogue)
 {
-    printf("Début du jeu");
+    printf("Début du jeu\n");
     // Déclaration des variables.
     int nb;
     char messageRecu[LG_MESSAGE];
@@ -187,21 +188,26 @@ void jeuServeur(int socketDialogue)
         int case_client = atoi(messageRecu);
 
         // Verification choix.
-        printf("Case client joué %d", case_client);
+        printf("Case client joué %d\n", case_client);
 
         if (!isValid(case_client))
         {
             char erreur[LG_MESSAGE] = "erreur";
             send(socketDialogue, erreur, strlen(erreur) + 1, 0);
+            printf("Incorect.\n");
         }
         else
         {
+            printf("Corect.\n");
+
             char confirm[LG_MESSAGE] = "confirm";
             send(socketDialogue, confirm, strlen(confirm) + 1, 0);
 
+            printf("avant showwww\n");
             // Placer la case du client coté serveur.
             place(&jeu, case_client, 'X');
-
+            show(&jeu);
+            printf("apres showwww\n");
             // Le serveur joue en choisissant une case au hasard
             int case_serveur = rand() % 9 + 1;
             place(&jeu, case_serveur, 'O');
