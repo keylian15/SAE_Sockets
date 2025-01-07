@@ -2,14 +2,30 @@
 #include <stdio.h>
 #include "morpion.h"
 
+<<<<<<< HEAD
 
 
+=======
+/**
+ * Vérifie si la grille est entièrement remplie.
+ * isFull(&m);
+ * @param m Pointeur vers la structure Morpion.
+ * @return true si la grille est pleine, false sinon.
+ */
+>>>>>>> refs/remotes/origin/main
 bool isFull(Morpion *m)
 {
     for (int i = 0; i < 3; i++)
     {
-        /* code */
+        for (int j = 0; j < 3; j++)
+        {
+            if (m->grille[i][j] == ' ') 
+            {
+                return false;
+            }
+        }
     }
+<<<<<<< HEAD
     
 }
 
@@ -39,3 +55,7 @@ bool isValid(cell){
 void place(Morpion *m,int cellx,int celly,char form){
     return m->grille[cellx][celly]=form;
 }
+=======
+    return true;
+}
+>>>>>>> refs/remotes/origin/main
