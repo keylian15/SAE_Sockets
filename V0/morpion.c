@@ -1,4 +1,4 @@
 struct morpion
 {
-    grille[3][3]
+    char grille[3][3];
 };
