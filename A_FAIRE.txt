@@ -1,0 +1,6 @@
+Fonction : 
+    init -> Initialise la grille avec que des " " 
+    isFull -> permet de savoir si la grille est pleine : Bool
+    isPlace -> Verifie si la case peut etre rempli : Bool
+    place -> Rempli la case : Grid
+    show -> Affiche la grille 
