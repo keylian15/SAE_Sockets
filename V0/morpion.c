@@ -50,4 +50,15 @@ bool isValid(cell){
 void place(Morpion *m,int cellx,int celly,char form){
     return m->grille[cellx][celly]=form;
 }
+<<<<<<< HEAD
 
+=======
+=======
+    return true;
+}
+<<<<<<< HEAD
+
+=======
+>>>>>>> refs/remotes/origin/main
+>>>>>>> 5aed12171a447f2be0e9ba53132603e82bc8d674
+>>>>>>> refs/remotes/origin/main

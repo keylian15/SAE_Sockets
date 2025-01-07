@@ -1,6 +1,11 @@
 Fonction : 
     init -> Initialise la grille avec que des " " 
+<<<<<<< HEAD
+    isFull -> permet de savoir si la grille est pleine : Bool -------- Fini
+    isPlace -> Verifie si la case peut etre rempli : Bool
+=======
     isFull -> permet de savoir si la grille est pleine : Bool
     isValid-> Verifie si la case peut etre rempli : Bool
+>>>>>>> 5aed12171a447f2be0e9ba53132603e82bc8d674
     place -> Rempli la case : Grid
     show -> Affiche la grille 
