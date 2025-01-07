@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "morpion.h"
+#define PORT 5000
+#define LG_MESSAGE 256
 
 /**
  * Initialise la grille en remplissant toutes les cases avec des espaces.
