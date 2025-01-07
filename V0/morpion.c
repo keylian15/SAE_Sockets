@@ -27,8 +27,35 @@ bool isFull(Morpion *m)
 void initialise()
 {
 }
-void show()
+/**
+ * Afficher la grille
+ * show(&m);
+ * @param m Pointeur vers la structure Morpion.
+ */
+void show(Morpion *m)
 {
+    int count = 1;
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (m->grille[i][j] == ' ')
+            {
+                printf("%d", count);
+            }
+            else
+            {
+                printf("%c", m->grille[i][j]);
+            }
+            if (j < 2)
+                printf("|");
+
+            count++;
+        }
+        printf("\n");
+        if (i < 2)
+            printf("-----\n");
+    }
 }
 bool isValid(cell)
 {
