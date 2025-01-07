@@ -70,28 +70,6 @@ void show(const Morpion *m)
             printf("-----\n");
     }
 }
-    /**
-     * Vérifie si la grille est entièrement remplie.
-     * isFull(&m);
-     * @param m Pointeur vers la structure Morpion.
-     * @return true si la grille est pleine, false sinon.
-     */
-
-bool isFull(const Morpion *m)
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                if (m->grille[i][j] == ' ')
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
 
 /**
  * verifie si la cellule existe
@@ -129,6 +107,7 @@ void place(Morpion *m, int cell, char form)
                 m->grille[cellx][celly] = form;
                 return;
             }
+            count++;
         }
     }
 }

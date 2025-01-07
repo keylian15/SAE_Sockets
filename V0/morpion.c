@@ -86,6 +86,7 @@ void place(Morpion *m, int cell, char form)
                 m->grille[cellx][celly] = form;
                 return;
             }
+            count++;
         }
     }
 }
