@@ -141,13 +141,17 @@ void place(Morpion *m, int cell, char form)
 char *whoWin(Morpion *m, int x, int y)
 {
 
-    if (m->grille[x][y] == 'x')
+    if (m->grille[x][y] == 'X')
     {
         return "Xwin";
     }
-    else
+    if (m->grille[x][y] == 'O')
     {
         return "Owin";
+    }
+    else
+    {
+        return "continue";
     }
 }
 
@@ -246,6 +250,7 @@ void jeuClient(int socketDialogue)
             scanf("%d", &choix);
 
             // Envoi le choix au serveur.
+            sleep(1);
             snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
@@ -266,6 +271,7 @@ void jeuClient(int socketDialogue)
         show(&jeu);
 
         // Recevoir le Xwin ou Xend ou Rien.
+
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
         verifRecu(bytesReceived, messageRecu);
 
@@ -277,6 +283,7 @@ void jeuClient(int socketDialogue)
         }
 
         // Recevoir la case serveur.
+
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
         verifRecu(bytesReceived, messageRecu);
 
@@ -284,10 +291,14 @@ void jeuClient(int socketDialogue)
         printf("Au serveur de jouer : \n");
         int case_serveur = atoi(messageRecu);
         place(&jeu, case_serveur, 'O');
+        show(&jeu);
 
         // Recevoir le message du serveur.
+        printf("Avant\n");
+
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
         verifRecu(bytesReceived, messageRecu);
+        printf("ici\n");
     }
 }
 
@@ -307,6 +318,7 @@ void jeuServeur(int socketDialogue)
     initialise(&jeu);
 
     // ====== Envoi Message de départ ======
+    sleep(1);
     strcpy(messageEnvoye, "start");
     bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
     verifEnvoye(bytesSent, messageEnvoye);
@@ -324,13 +336,14 @@ void jeuServeur(int socketDialogue)
         // Verification choix.
         if (!isValid(&jeu, case_client))
         {
+            sleep(1);
             strcpy(messageEnvoye, "erreur");
-            bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            bytesSent = (socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
         }
         else
         {
-
+            sleep(1);
             strcpy(messageEnvoye, "confirm");
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
@@ -345,7 +358,9 @@ void jeuServeur(int socketDialogue)
             if (strcmp(reponse, "Xwin") == 0)
             {
                 strcpy(messageEnvoye, "Xwin");
-                bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                sleep(1);
+
+                bytesSent = (socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
                 // FERMER LA SOCKET.
                 close(socketDialogue);
@@ -353,6 +368,7 @@ void jeuServeur(int socketDialogue)
             }
             if (isFull(&jeu))
             {
+                sleep(1);
                 strcpy(messageEnvoye, "Xend");
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
@@ -362,6 +378,7 @@ void jeuServeur(int socketDialogue)
             }
             else
             {
+                sleep(1);
                 strcpy(messageEnvoye, "rien");
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
@@ -387,6 +404,7 @@ void jeuServeur(int socketDialogue)
             int case_serveur = atoi(tokens[index_case_serveur]);
 
             // Envoie de la case serveur.
+            sleep(1);
             messageEnvoye[LG_MESSAGE]; // UTILE ?
             snprintf(messageEnvoye, LG_MESSAGE, "%d", case_serveur);
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
@@ -397,8 +415,10 @@ void jeuServeur(int socketDialogue)
 
             // On verifie s'il y a un gagnant.
             reponse = checkWin(&jeu);
+            printf("La deuxieme reponse du check %s\n", reponse);
             if (strcmp(reponse, "Owin") == 0)
             {
+                sleep(1);
                 strcpy(messageEnvoye, "Owin");
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
@@ -409,6 +429,7 @@ void jeuServeur(int socketDialogue)
             }
             if (isFull(&jeu))
             {
+                sleep(1);
                 strcpy(messageEnvoye, "Oend");
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
@@ -418,6 +439,7 @@ void jeuServeur(int socketDialogue)
             }
             else
             {
+                sleep(1);
                 strcpy(messageEnvoye, "continue");
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
