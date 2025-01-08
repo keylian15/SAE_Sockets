@@ -360,7 +360,7 @@ void jeuServeur(int socketDialogue)
                 strcpy(messageEnvoye, "Xwin");
                 sleep(1);
 
-                bytesSent = (socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
                 // FERMER LA SOCKET.
                 close(socketDialogue);
