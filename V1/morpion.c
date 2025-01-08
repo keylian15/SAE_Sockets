@@ -57,6 +57,7 @@ void initialise(Morpion *m)
 void show(const Morpion *m)
 {
     int count = 1;
+    printf("\n");
     for (int i = 0; i < 3; i++)
     {
         for (int j = 0; j < 3; j++)
@@ -78,6 +79,7 @@ void show(const Morpion *m)
         if (i < 2)
             printf("-----\n");
     }
+    printf("\n");
 }
 
 /**
@@ -92,7 +94,12 @@ bool isValid(Morpion *m, int cell)
     {
         return false;
     }
-    else
+    return true;
+}
+
+bool isPlacable(Morpion *m, int cell)
+{
+    if (isValid(m, cell))
     {
         if (m->grille[(cell - 1) / 3][(cell - 1) % 3] != ' ')
         {
@@ -100,6 +107,7 @@ bool isValid(Morpion *m, int cell)
         }
         return false;
     }
+    return false;
 }
 
 /**
@@ -185,7 +193,7 @@ char *checkWin(Morpion *m)
  * @return La liste sous forme : "2 4" par exemple. */
 char *getCaseVide(Morpion *m)
 {
-    static char listeCase[10];
+    static char listeCase[20];
     int index = 0;
     int count = 1;
 
@@ -195,6 +203,10 @@ char *getCaseVide(Morpion *m)
         {
             if (m->grille[i][j] == ' ')
             {
+                if (index > 0)
+                {
+                    listeCase[index++] = '-';
+                }
                 listeCase[index++] = '0' + count;
             }
             count++;
@@ -256,11 +268,9 @@ void jeuClient(int socketDialogue)
         // Recevoir le Xwin ou Xend ou Rien.
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
         verifRecu(bytesReceived, messageRecu);
-        printf("%s", messageRecu);
 
         if (strcmp(messageRecu, "rien") != 0)
         {
-            printf("%s", messageRecu);
             // FERMER LA SOCKET.
             close(socketDialogue);
             printf("Socket de dialogue fermée.\n");
@@ -278,7 +288,6 @@ void jeuClient(int socketDialogue)
         // Recevoir le message du serveur.
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
         verifRecu(bytesReceived, messageRecu);
-        printf("%s", messageRecu);
     }
 }
 
@@ -332,7 +341,8 @@ void jeuServeur(int socketDialogue)
 
             // On verifie s'il y a un gagnant.
             char *reponse = checkWin(&jeu);
-            if (strcmp(messageRecu, "Xwin") == 0)
+            printf("La reponse du checkWin %s \n", reponse);
+            if (strcmp(reponse, "Xwin") == 0)
             {
                 strcpy(messageEnvoye, "Xwin");
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
@@ -357,21 +367,24 @@ void jeuServeur(int socketDialogue)
                 verifEnvoye(bytesSent, messageEnvoye);
             }
 
-            // Récuperer la liste des cases vides.
+            // Récupérer la liste des cases vides.
             char *listeCaseVide = getCaseVide(&jeu);
 
-            // Le serveur joue en choisissant une case au hasard vide.
-            char *token = strtok(listeCaseVide, " ");
+            // Découper les cases en tokens.
+            char *token = strtok(listeCaseVide, "-");
             char *tokens[50];
             int count = 0;
+
             while (token != NULL)
             {
                 tokens[count++] = token; // Stocke le token
-                token = strtok(NULL, " ");
+                token = strtok(NULL, "-");
             }
+
+            // Générer une case au hasard à partir des cases vides.
             srand(time(NULL));
-            int index_case_serveur = rand() % 9 + 1;
-            int case_serveur = tokens[index_case_serveur][0];
+            int index_case_serveur = rand() % count;
+            int case_serveur = atoi(tokens[index_case_serveur]);
 
             // Envoie de la case serveur.
             messageEnvoye[LG_MESSAGE]; // UTILE ?
@@ -384,14 +397,15 @@ void jeuServeur(int socketDialogue)
 
             // On verifie s'il y a un gagnant.
             reponse = checkWin(&jeu);
-            if (strcmp(messageRecu, "Owin") == 0)
+            if (strcmp(reponse, "Owin") == 0)
             {
                 strcpy(messageEnvoye, "Owin");
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
                 // FERMER LA SOCKET.
-                close(socketDialogue);
-                printf("Socket de dialogue fermée.\n");
+                // ICI IL FAUT FERMER LE TRUC CORRECTEMENT
+                // close(socketDialogue);
+                // printf("Socket de dialogue fermée.\n");
             }
             if (isFull(&jeu))
             {
