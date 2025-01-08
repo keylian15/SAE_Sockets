@@ -90,18 +90,9 @@ void show(const Morpion *m)
  */
 bool isValid(Morpion *m, int cell)
 {
-    if (cell > 9 || cell < 1)
+    if (cell < 10 || cell > 0)
     {
-        return false;
-    }
-    return true;
-}
-
-bool isPlacable(Morpion *m, int cell)
-{
-    if (isValid(m, cell))
-    {
-        if (m->grille[(cell - 1) / 3][(cell - 1) % 3] != ' ')
+        if (m->grille[(cell - 1) / 3][(cell - 1) % 3] == ' ')
         {
             return true;
         }
@@ -246,7 +237,7 @@ void jeuClient(int socketDialogue)
         while (!condition)
         {
             // Demander au client de choisir une case
-            printf("Choisissez votre case (1 à 9) :\n ");
+            printf("Choisissez votre case (1 à 9) :\n");
             scanf("%d", &choix);
 
             // Envoi le choix au serveur.
@@ -276,7 +267,7 @@ void jeuClient(int socketDialogue)
 
         if (strcmp(messageRecu, "Xwin") == 0)
         {
-            printf("Le serveur a gagné !\n");
+            printf("Le client a gagné !\n");
             close(socketDialogue);
             printf("Socket de dialogue fermée.\n");
             break;
@@ -300,7 +291,6 @@ void jeuClient(int socketDialogue)
         show(&jeu);
 
         // Recevoir le message du serveur.
-        printf("Avant\n");
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
         verifRecu(bytesReceived, messageRecu);
 
@@ -320,8 +310,6 @@ void jeuClient(int socketDialogue)
         }
     }
 }
-
-
 
 /**
  * Fonction gerant la logique du jeu lorsque c'est le serveur qui joue.
@@ -344,7 +332,7 @@ void jeuServeur(int socketDialogue)
         strcpy(messageEnvoye, "start");
         bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
         verifEnvoye(bytesSent, messageEnvoye);
-        
+
         // ====== Boucle de jeu ======
         while (1)
         {
@@ -368,16 +356,15 @@ void jeuServeur(int socketDialogue)
                 bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
 
+                // Placer la case du client coté serveur.
                 place(&jeu, case_client, 'X');
                 show(&jeu);
 
                 char *reponse = checkWin(&jeu);
-                printf("La reponse du checkWin %s \n", reponse);
                 if (strcmp(reponse, "Xwin") == 0)
                 {
-                    strcpy(messageEnvoye, "Xwin");
                     sleep(1);
-
+                    strcpy(messageEnvoye, "Xwin");
                     bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                     verifEnvoye(bytesSent, messageEnvoye);
                     close(socketDialogue);
@@ -426,7 +413,6 @@ void jeuServeur(int socketDialogue)
                 show(&jeu);
 
                 reponse = checkWin(&jeu);
-                printf("La deuxieme reponse du check %s\n", reponse);
                 if (strcmp(reponse, "Owin") == 0)
                 {
                     sleep(1);
@@ -458,7 +444,6 @@ void jeuServeur(int socketDialogue)
         }
     }
 }
-
 
 /**
  * Fonction permettant de verifier l'envoye d'un message envoyé.
