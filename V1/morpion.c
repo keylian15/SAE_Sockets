@@ -134,11 +134,11 @@ char whoWin(Morpion *m, int x, int y)
 
     if (m->grille[x][y] == "x")
     {
-        return "le gagnant est le client";
+        return "Xwin";
     }
     else
     {
-        return "le gagnant est le serveur";
+        return "Owin";
     }
 }
 
@@ -173,7 +173,7 @@ char checkWin(Morpion *m)
     }
     else
     {
-        return "pas de gagnant on continue";
+        return "continue";
     }
 }
 
@@ -310,8 +310,6 @@ void jeuServeur(int socketDialogue)
             // Placer la case du client coté serveur.
             place(&jeu, case_client, 'X');
             show(&jeu);
-
-            
 
             // Récuperer la liste des cases vides.
             char listeCaseVide = getCaseVide(&jeu);
