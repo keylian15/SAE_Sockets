@@ -15,6 +15,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o morpion morpion.c
    gcc -o serveur serveur.c
    gcc -o client client.c
+   clear
 3. Executer les fichiers dans deux termineaux :
    ```bash
    ./serveur
@@ -34,6 +35,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o morpion morpion.c
    gcc -o serveur serveur.c
    gcc -o client client.c
+   clear
 3. Executer les fichiers dans deux termineaux :
    ```bash
    ./serveur

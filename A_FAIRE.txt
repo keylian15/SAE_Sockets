@@ -1,9 +1,6 @@
-Fonction : 
-    init -> Initialise la grille avec que des " " 
-    isFull -> permet de savoir si la grille est pleine : Bool
-    isValid-> Verifie si la case peut etre rempli : Bool
-    place -> Rempli la case : Grid
-    show -> Affiche la grille 
+A FAIRE : 
+    Revoir les diagrammes des V0 et V1 pour être sur qu'ils soient cohérent.
+    Verifier tous les commentaires au dessus des fonctions des 2 versions. 
 
-Problemes : 
-    Le Random n'est pas random, c'est toujours la même séquence aléatoire.
+A REFLECHIR : 
+    Lorsqu'on ctrl c le client le serveur s'arrete, il ne devrait pas.
