@@ -164,23 +164,23 @@ char *checkWin(Morpion *m)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (m->grille[i][1] == m->grille[i][0] && m->grille[i][2] == m->grille[i][0])
+        if (m->grille[i][0] != ' ' && m->grille[i][1] == m->grille[i][0] && m->grille[i][2] == m->grille[i][0])
         {
             return whoWin(m, i, 1);
         }
     }
     for (int j = 0; j < 3; j++)
     {
-        if (m->grille[0][j] == m->grille[1][j] && m->grille[2][j] == m->grille[0][j])
+        if (m->grille[0][j] != ' ' && m->grille[0][j] == m->grille[1][j] && m->grille[2][j] == m->grille[0][j])
         {
             return whoWin(m, 1, j);
         }
     }
-    if (m->grille[0][0] == m->grille[1][1] && m->grille[2][2] == m->grille[1][1])
+    if (m->grille[0][0] != ' ' && m->grille[0][0] == m->grille[1][1] && m->grille[2][2] == m->grille[1][1])
     {
         return whoWin(m, 1, 1);
     }
-    else if (m->grille[0][3] == m->grille[1][1] && m->grille[2][0] == m->grille[1][1])
+    else if (m->grille[0][2] != ' ' && m->grille[0][2] == m->grille[1][1] && m->grille[2][0] == m->grille[1][1])
     {
         return whoWin(m, 1, 1);
     }
