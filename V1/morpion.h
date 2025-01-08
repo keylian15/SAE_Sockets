@@ -11,8 +11,11 @@ typedef struct
 bool isFull(const Morpion *m);
 void initialise(Morpion *m);
 void show(const Morpion *m);
-bool isValid(int cell);
+bool isValid(Morpion *m, int cell);
 void place(Morpion *m, int cell, char form);
+
+char* whoWin(Morpion *m, int x, int y);
+char* checkWin(Morpion *m);
 
 void jeuClient(int descripteurSocket);
 void jeuServeur(int socketDialogue);
