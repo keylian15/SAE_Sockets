@@ -1,7 +1,15 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "morpion.h"
-
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#define PORT 5000
+#define LG_MESSAGE 256
 /**
  * Vérifie si la grille est entièrement remplie.
  * isFull(&m);
@@ -85,7 +93,8 @@ bool isValid(Morpion *m, int cell)
     }
     else
     {
-        if (m->grille[(cell - 1) / 3][(cell - 1) % 3] != ' '){
+        if (m->grille[(cell - 1) / 3][(cell - 1) % 3] != ' ')
+        {
             return true;
         }
         return false;
@@ -166,6 +175,33 @@ char checkWin(Morpion *m)
     {
         return "pas de gagnant on continue";
     }
+}
+
+/**
+ * Fonction permettant d'avoir la liste des cases vides de la grille.
+ * getCaseVide(&m);
+ * @param *m Le morpion
+ * @return La liste sous forme : "2 4" par exemple. */
+char *getCaseVide(Morpion *m)
+{
+    static char listeCase[10];
+    int index = 0;
+    int count = 1;
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (m->grille[i][j] == ' ')
+            {
+                listeCase[index++] = '0' + count;
+            }
+            count++;
+        }
+    }
+
+    listeCase[index] = '\0';
+    return listeCase;
 }
 
 /**
@@ -258,7 +294,7 @@ void jeuServeur(int socketDialogue)
         int case_client = atoi(messageRecu);
 
         // Verification choix.
-        if (!isValid(case_client))
+        if (!isValid(&jeu, case_client))
         {
             strcpy(messageEnvoye, "erreur");
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
@@ -275,6 +311,11 @@ void jeuServeur(int socketDialogue)
             place(&jeu, case_client, 'X');
             show(&jeu);
 
+            
+
+            // Récuperer la liste des cases vides.
+            char listeCaseVide = getCaseVide(&jeu);
+
             // Le serveur joue en choisissant une case au hasard
             int case_serveur = rand() % 9 + 1;
 
@@ -283,7 +324,7 @@ void jeuServeur(int socketDialogue)
             snprintf(messageEnvoye, LG_MESSAGE, "%d", case_serveur);
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
-            
+
             place(&jeu, case_serveur, 'O');
             show(&jeu);
         }
@@ -339,6 +380,6 @@ void verifRecu(ssize_t bytesReceived, char *messageRecu)
     else
     {
         messageRecu[bytesReceived] = '\0';
-        printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu ,bytesReceived);
+        printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu, bytesReceived);
     }
 }

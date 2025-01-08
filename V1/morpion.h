@@ -19,4 +19,6 @@ void jeuServeur(int socketDialogue);
 void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye);
 void verifRecu(ssize_t bytesReceived, char *messageRecu);
 
+char *getCaseVide(Morpion *m);
+
 #endif
