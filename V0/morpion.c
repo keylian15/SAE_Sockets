@@ -99,7 +99,10 @@ void place(Morpion *m, int cell, char form)
     }
 }
 
-void jeuClient(int descripteurSocket)
+/**
+ * Fonction gerant la logique du jeu lorsque c'est le client qui joue.
+ */
+void jeuClient(int socketDialogue)
 {
     // Déclaration des variables.
     char messageEnvoye[LG_MESSAGE];
@@ -126,12 +129,12 @@ void jeuClient(int descripteurSocket)
 
             // Envoi le choix au serveur.
             snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
-            bytesSent = send(descripteurSocket, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
 
             // ====== Réception Message Serveur ======
             memset(messageRecu, 0x00, LG_MESSAGE);
-            bytesReceived = recv(descripteurSocket, messageRecu, LG_MESSAGE, 0);
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
             verifRecu(bytesReceived, messageRecu);
 
             if (strcmp(messageRecu, "confirm") == 0)
@@ -145,7 +148,7 @@ void jeuClient(int descripteurSocket)
         show(&jeu);
 
         // Recevoir la mise à jour
-        bytesReceived = recv(descripteurSocket, messageRecu, LG_MESSAGE, 0);
+        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
         verifRecu(bytesReceived, messageRecu);
 
         // Place la case du serveur coté client.
@@ -155,6 +158,9 @@ void jeuClient(int descripteurSocket)
     }
 }
 
+/**
+ * Fonction gerant la logique du jeu lorsque c'est le serveur qui joue.
+ */
 void jeuServeur(int socketDialogue)
 {
     printf("Début du jeu.\n");
@@ -219,6 +225,12 @@ void jeuServeur(int socketDialogue)
     printf("Socket de dialogue fermée.\n");
 }
 
+/**
+ * Fonction permettant de verifier l'envoye d'un message envoyé.
+ * verifRecu(bytesReceived, messageRecu);
+ * @param bytesSent le retour de la fonction send()
+ * @param *messageEnvoye Le message envoyé;
+ */
 void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye)
 {
     if (bytesSent < 0)
@@ -238,21 +250,26 @@ void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye)
     }
 }
 
+/**
+ * Fonction permettant de verifier le recu d'un message receptionné.
+ * verifRecu(bytesReceived, messageRecu);
+ * @param bytesReceived le retour de la fonction recv()
+ * @param *messageRecu Le message recu;
+ */
 void verifRecu(ssize_t bytesReceived, char *messageRecu)
 {
     if (bytesReceived < 0)
     {
         perror("Erreur lors de la réception du message");
-        // Gestion d'erreur ici (ex: fermer socket, quitter, etc.)
+        // Gestion d'erreur ici
     }
     else if (bytesReceived == 0)
     {
         printf("Le socket a été fermé par l'émetteur.\n");
-        // Fin de connexion propre, gestion ici si nécessaire
     }
     else
     {
-        messageRecu[bytesReceived] = '\0'; // Terminer correctement la chaîne reçue
+        messageRecu[bytesReceived] = '\0';
         printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu ,bytesReceived);
     }
 }
