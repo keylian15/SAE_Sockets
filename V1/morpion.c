@@ -70,10 +70,6 @@ void show(const Morpion *m)
             printf("-----\n");
     }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/main
 
 /**
  * verifie si la cellule existe
@@ -136,6 +132,7 @@ char whoWin(Morpion *m, int x, int y)
         return "le gagnant est le serveur";
     }
 }
+
 /**
  * verifie si il y a un gagnant dans la grille et renvoie le gagnant si oui
  * checkwin(&m);
@@ -168,5 +165,180 @@ char checkWin(Morpion *m)
     else
     {
         return "pas de gagnant on continue";
+    }
+}
+
+/**
+ * Fonction gerant la logique du jeu lorsque c'est le client qui joue.
+ */
+void jeuClient(int socketDialogue)
+{
+    // Déclaration des variables.
+    char messageEnvoye[LG_MESSAGE];
+    char messageRecu[LG_MESSAGE];
+    int bytesReceived;
+    int bytesSent;
+    bool condition = false;
+
+    Morpion jeu;
+    initialise(&jeu);
+
+    printf("Début du jeu.\n");
+    while (1)
+    {
+        // Montre la grille
+        show(&jeu);
+        int choix;
+        condition = false;
+        while (!condition)
+        {
+            // Demander au client de choisir une case
+            printf("Choisissez votre case (1 à 9) :\n ");
+            scanf("%d", &choix);
+
+            // Envoi le choix au serveur.
+            snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
+            bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
+            // ====== Réception Message Serveur ======
+            memset(messageRecu, 0x00, LG_MESSAGE);
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            verifRecu(bytesReceived, messageRecu);
+
+            if (strcmp(messageRecu, "confirm") == 0)
+            {
+                condition = true;
+            }
+        }
+
+        // Placer la case du client coté client.
+        place(&jeu, choix, 'X');
+        show(&jeu);
+
+        // Recevoir la mise à jour
+        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+        verifRecu(bytesReceived, messageRecu);
+
+        // Place la case du serveur coté client.
+        printf("Au serveur de jouer : \n");
+        int case_serveur = atoi(messageRecu);
+        place(&jeu, case_serveur, 'O');
+    }
+}
+
+/**
+ * Fonction gerant la logique du jeu lorsque c'est le serveur qui joue.
+ */
+void jeuServeur(int socketDialogue)
+{
+    printf("Début du jeu.\n");
+    // Déclaration des variables.
+    int bytesSent;
+    int bytesReceived;
+    char messageRecu[LG_MESSAGE];
+    char messageEnvoye[LG_MESSAGE];
+
+    Morpion jeu;
+    initialise(&jeu);
+
+    // ====== Envoi Message de départ ======
+    strcpy(messageEnvoye, "start");
+    bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+    verifEnvoye(bytesSent, messageEnvoye);
+    // ====== Boucle de jeu ======
+    while (1)
+    {
+        // ====== Réception Message Client ======
+        memset(messageRecu, 0x00, LG_MESSAGE);
+        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+        verifRecu(bytesReceived, messageRecu);
+
+        // Conversion de la case choisie en int
+        int case_client = atoi(messageRecu);
+
+        // Verification choix.
+        if (!isValid(case_client))
+        {
+            strcpy(messageEnvoye, "erreur");
+            bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+        }
+        else
+        {
+
+            strcpy(messageEnvoye, "confirm");
+            bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
+            // Placer la case du client coté serveur.
+            place(&jeu, case_client, 'X');
+            show(&jeu);
+
+            // Le serveur joue en choisissant une case au hasard
+            int case_serveur = rand() % 9 + 1;
+
+            // Envoie de la case serveur.
+            messageEnvoye[LG_MESSAGE];
+            snprintf(messageEnvoye, LG_MESSAGE, "%d", case_serveur);
+            bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+            
+            place(&jeu, case_serveur, 'O');
+            show(&jeu);
+        }
+    }
+
+    // ====== Fermeture Socket Dialogue (8) ======
+    close(socketDialogue);
+    printf("Socket de dialogue fermée.\n");
+}
+
+/**
+ * Fonction permettant de verifier l'envoye d'un message envoyé.
+ * verifRecu(bytesReceived, messageRecu);
+ * @param bytesSent le retour de la fonction send()
+ * @param *messageEnvoye Le message envoyé;
+ */
+void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye)
+{
+    if (bytesSent < 0)
+    {
+        perror("Erreur lors de l'envoi du message");
+        // Gestion d'erreur ici (ex: fermer socket, quitter, etc.)
+    }
+    else if ((size_t)bytesSent != strlen(messageEnvoye) + 1)
+    {
+        fprintf(stderr, "Tous les octets n'ont pas été envoyés (%zd/%zd)\n",
+                bytesSent, strlen(messageEnvoye) + 1);
+        // Gestion pour les envois partiels (ré-envoi possible ici)
+    }
+    else
+    {
+        printf("Message envoyé '%s' avec succès (%zd octets)\n", messageEnvoye, bytesSent);
+    }
+}
+
+/**
+ * Fonction permettant de verifier le recu d'un message receptionné.
+ * verifRecu(bytesReceived, messageRecu);
+ * @param bytesReceived le retour de la fonction recv()
+ * @param *messageRecu Le message recu;
+ */
+void verifRecu(ssize_t bytesReceived, char *messageRecu)
+{
+    if (bytesReceived < 0)
+    {
+        perror("Erreur lors de la réception du message");
+        // Gestion d'erreur ici
+    }
+    else if (bytesReceived == 0)
+    {
+        printf("Le socket a été fermé par l'émetteur.\n");
+    }
+    else
+    {
+        messageRecu[bytesReceived] = '\0';
+        printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu ,bytesReceived);
     }
 }

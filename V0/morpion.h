@@ -1,5 +1,6 @@
 #ifndef MORPION_H
 #define MORPION_H
+#include <sys/types.h>
 
 #include <stdbool.h>
 
