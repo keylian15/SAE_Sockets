@@ -4,4 +4,4 @@ A FAIRE :
     V2
 
 A REFLECHIR : 
-    Lorsqu'on ctrl c le client le serveur s'arrete, il ne devrait pas.
+    Lorsqu'on ctrl c le client le serveur s'arrete, il ne devrait pas. (corriger normalement)
