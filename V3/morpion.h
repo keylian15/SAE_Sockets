@@ -25,6 +25,7 @@ bool verifRecu(ssize_t bytesReceived, char *messageRecu);
 char *getCaseVide(Morpion *m);
 
 void sendToSpectate(int sockets[], int nbSpectateurs, const char *message);
+void closeSocket(int sockets[], int nbSpectateurs);
 
 
 #endif

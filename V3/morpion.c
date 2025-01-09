@@ -404,7 +404,7 @@ void jeuClient(int socketDialogue)
 /**
  * Fonction gerant la logique du jeu lorsque c'est le serveur qui joue.
  */
-void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], int nbSpectateur)
+void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], int nbSpectateurs)
 {
     printf("Début du jeu.\n");
     int bytesSent;
@@ -436,7 +436,7 @@ void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], in
         // Au Spectateur :
         sleep(1);
         strcpy(messageEnvoye, "startspectateur");
-        sendToSpectate(listeSocketSpect, nbSpectateur, messageEnvoye);
+        sendToSpectate(listeSocketSpect, nbSpectateurs, messageEnvoye);
         // ====== Boucle de jeu ======
         while (1)
         {
@@ -493,7 +493,7 @@ void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], in
             // Envoyer la case au spectateur
             sleep(1);
             snprintf(messageEnvoye, LG_MESSAGE, "%d", case_client);
-            sendToSpectate(listeSocketSpect, nbSpectateur, messageEnvoye);
+            sendToSpectate(listeSocketSpect, nbSpectateurs, messageEnvoye);
 
             // Placer la case du client 1 coté serveur.
             place(&jeu, case_client, 'X');
@@ -515,11 +515,11 @@ void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], in
                 // Envoie au spectateur :
                 sleep(1);
                 strcpy(messageEnvoye, "Client1Win");
-                sendToSpectate(listeSocketSpect, nbSpectateur, messageEnvoye);
+                sendToSpectate(listeSocketSpect, nbSpectateurs, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
-                close(listeSocketSpect);
+                closeSocket(listeSocketSpect, nbSpectateurs);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -538,11 +538,11 @@ void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], in
                 // Envoie Spectateur :
                 sleep(1);
                 strcpy(messageEnvoye, "Client1End");
-                sendToSpectate(listeSocketSpect, nbSpectateur, messageEnvoye);
+                sendToSpectate(listeSocketSpect, nbSpectateurs, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
-                close(listeSocketSpect);
+                closeSocket(listeSocketSpect, nbSpectateurs);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -617,7 +617,7 @@ void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], in
             // Placer la case du client coté spectateur
             sleep(1);
             snprintf(messageEnvoye, LG_MESSAGE, "%d", case_client);
-            sendToSpectate(listeSocketSpect, nbSpectateur, messageEnvoye);
+            sendToSpectate(listeSocketSpect, nbSpectateurs, messageEnvoye);
 
             reponse = checkWin(&jeu);
             if (strcmp(reponse, "Client2Win") == 0)
@@ -635,11 +635,11 @@ void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], in
                 // Envoie Spectateur
                 sleep(1);
                 strcpy(messageEnvoye, "Client2Win");
-                sendToSpectate(listeSocketSpect, nbSpectateur, messageEnvoye);
+                sendToSpectate(listeSocketSpect, nbSpectateurs, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
-                close(listeSocketSpect);
+                closeSocket(listeSocketSpect, nbSpectateurs);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -658,11 +658,11 @@ void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], in
                 // Envoie Spectateur
                 sleep(1);
                 strcpy(messageEnvoye, "Client2End");
-                sendToSpectate(listeSocketSpect, nbSpectateur, messageEnvoye);
+                sendToSpectate(listeSocketSpect, nbSpectateurs, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
-                close(listeSocketSpect);
+                closeSocket(listeSocketSpect, nbSpectateurs);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -783,7 +783,7 @@ void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye)
                 return;
             }
  * @param bytesReceived le retour de la fonction recv()
- * @param *messageRecu Le message recu;
+ * @param messageRecu Le message recu;
  * @return false si erreur true si aucune erreur
  */
 bool verifRecu(ssize_t bytesReceived, char *messageRecu)
@@ -807,6 +807,12 @@ bool verifRecu(ssize_t bytesReceived, char *messageRecu)
     }
 }
 
+/**
+ * Fonction permettant d'envoyer un même message a toute une liste de socket.
+ * @param sockets[] La liste de socket.
+ * @param nbSpectateurs Le nombre de spectateur.
+ * @param message Le message a envoyé.
+ */
 void sendToSpectate(int sockets[], int nbSpectateurs, const char *message)
 {
     int bytesSent;
@@ -814,5 +820,18 @@ void sendToSpectate(int sockets[], int nbSpectateurs, const char *message)
     {
         bytesSent = send(sockets[i], message, strlen(message), 0);
         verifEnvoye(bytesSent, message);
+    }
+}
+
+/**
+ * Fonction permettant de fermer toute une liste de socket.
+ * @param sockets[] La liste de socket.
+ * @param nbSpectateurs Le nombre de spectateur.
+ */
+void closeSocket(int sockets[], int nbSpectateurs)
+{
+    for (int i = 0; i < nbSpectateurs; i++)
+    {
+        close(sockets[i]);
     }
 }
