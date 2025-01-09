@@ -18,6 +18,7 @@ int main()
     socklen_t longueurAdresse;
     int nbParties, nbSpectateurMax;
     bool conditionNbJoueur;
+    nbSpectateurMax = 0;
     // ====== Demande Nombre Spectateur ======
 
     printf("Entrez le nombre de parties : \n");
@@ -31,17 +32,17 @@ int main()
         if (fils == 0)
         {
             // ====== Demande Nombre Spectateur ======
-            conditionNbJoueur = false;
-            while (!conditionNbJoueur)
-            {
-                printf("Entrez le nombre de spectateur (0 - 3) pour la partie %d: \n", i);
-                scanf(" %d", &nbSpectateurMax);
-                printf("Vous avez choisi %d pour la partie %d.\n", nbSpectateurMax, i);
-                if (nbSpectateurMax > -1 && nbSpectateurMax < 4)
-                {
-                    conditionNbJoueur = true;
-                }
-            }
+            // conditionNbJoueur = false;
+            // while (!conditionNbJoueur)
+            // {
+            //     printf("Entrez le nombre de spectateur (0 - 3) pour la partie %d: \n", i);
+            //     scanf(" %d", &nbSpectateurMax);
+            //     printf("Vous avez choisi %d pour la partie %d.\n", nbSpectateurMax, i);
+            //     if (nbSpectateurMax > -1 && nbSpectateurMax < 4)
+            //     {
+            //         conditionNbJoueur = true;
+            //     }
+            // }
             // ====== Fin Demande Nombre Spectateur ======
 
             // ====== Création socket (1) ======
@@ -54,19 +55,22 @@ int main()
             printf("Socket d'écoute créée! (%d)\n", socketEcoute);
 
             // ====== Configuration Attachement Local (2) ======
-            memset(&pointDeRencontreLocal, 0x00, sizeof(pointDeRencontreLocal));
-            pointDeRencontreLocal.sin_family = AF_INET;
-            pointDeRencontreLocal.sin_addr.s_addr = htonl(INADDR_ANY);
-            pointDeRencontreLocal.sin_port = htons(PORT);
-            if (bind(socketEcoute, (struct sockaddr *)&pointDeRencontreLocal, sizeof(pointDeRencontreLocal)) < 0)
+            bool condition = false;
+            while (!condition)
             {
+                memset(&pointDeRencontreLocal, 0x00, sizeof(pointDeRencontreLocal));
+                pointDeRencontreLocal.sin_family = AF_INET;
+                pointDeRencontreLocal.sin_addr.s_addr = htonl(INADDR_ANY);
+                pointDeRencontreLocal.sin_port = htons(PORT);
+                if (bind(socketEcoute, (struct sockaddr *)&pointDeRencontreLocal, sizeof(pointDeRencontreLocal)) < 0)
+                {
 
-                perror("Erreur d'attachement de l'adresse locale...");
-                close(socketEcoute);
-                exit(-2);
+                    printf("Erreur d'attachement de l'adresse locale avec le port %d... ", PORT);
+                    close(socketEcoute);
+                    exit(-2);
+                }
+                printf("Adresse locale attachée.\n");
             }
-            printf("Adresse locale attachée.\n");
-
             // ====== Déclaration Nombre Maximum Connexions (3) ======
             if (listen(socketEcoute, 5) < 0)
             {

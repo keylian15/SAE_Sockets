@@ -9,7 +9,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <time.h>
-#define PORT 5000
 #define LG_MESSAGE 256
 /**
  * Vérifie si la grille est entièrement remplie.
@@ -840,7 +839,7 @@ void closeSocket(int sockets[], int nbSpectateurs)
 /**
  * Fonction permettant de lancer un autre terminal client.
  */
-void terminalClient()
+void terminalClient(int port)
 {
     char command_client[265];
     snprintf(command_client, sizeof(command_client), "xterm -hold -e ./client 127.0.0.1 5000 ");
