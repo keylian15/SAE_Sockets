@@ -102,7 +102,7 @@ bool isValid(Morpion *m, int cell)
 }
 
 /**
- * place dans la grille la forme demander
+ * place dans la grille la forme demannder
  * place(&m,3,x);
  * @param cell numero de la cellule
  * @param form la forme qui est entrée
@@ -447,7 +447,7 @@ void jeuServeur(int socketDialogue)
 
 /**
  * Fonction permettant de verifier l'envoye d'un message envoyé.
- * verifEnvoye(bytesReceived, messageEnvoye);
+ * verifRecu(bytesReceived, messageRecu);
  * @param bytesSent le retour de la fonction send()
  * @param *messageEnvoye Le message envoyé;
  */
