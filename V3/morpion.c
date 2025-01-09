@@ -404,7 +404,7 @@ void jeuClient(int socketDialogue)
 /**
  * Fonction gerant la logique du jeu lorsque c'est le serveur qui joue.
  */
-void jeuServeur(int socketClient1, int socketClient2)
+void jeuServeur(int socketClient1, int socketClient2, int socketSpectateur)
 {
     printf("Début du jeu.\n");
     int bytesSent;
@@ -431,6 +431,11 @@ void jeuServeur(int socketClient1, int socketClient2)
         sleep(1);
         strcpy(messageEnvoye, "start");
         bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+        verifEnvoye(bytesSent, messageEnvoye);
+
+        sleep(1);
+        strcpy(messageEnvoye, "startspectateur");
+        bytesSent = send(socketSpectateur, messageEnvoye, strlen(messageEnvoye) + 1, 0);
         verifEnvoye(bytesSent, messageEnvoye);
 
         // ====== Boucle de jeu ======
@@ -490,6 +495,12 @@ void jeuServeur(int socketClient1, int socketClient2)
             place(&jeu, case_client, 'X');
             show(&jeu);
 
+            // envoyer la case au spectateur
+            sleep(1);
+            snprintf(messageEnvoye, LG_MESSAGE, "%d", case_client);
+            bytesSent = send(socketSpectateur, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
             reponse = checkWin(&jeu);
             if (strcmp(reponse, "Client1Win") == 0)
             {
@@ -503,9 +514,14 @@ void jeuServeur(int socketClient1, int socketClient2)
                 strcpy(messageEnvoye, "Client1Win");
                 bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
+                sleep(1);
+                strcpy(messageEnvoye, "Client1Win");
+                bytesSent = send(socketSpectateur, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
+                close(socketSpectateur);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -521,9 +537,14 @@ void jeuServeur(int socketClient1, int socketClient2)
                 strcpy(messageEnvoye, "Client1End");
                 bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
+                sleep(1);
+                strcpy(messageEnvoye, "Client1End");
+                bytesSent = send(socketSpectateur, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
+                close(socketSpectateur);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -595,6 +616,12 @@ void jeuServeur(int socketClient1, int socketClient2)
             place(&jeu, case_client, 'O');
             show(&jeu);
 
+            // placer la case du client coter spectateur
+            sleep(1);
+            snprintf(messageEnvoye, LG_MESSAGE, "%d", case_client);
+            bytesSent = send(socketSpectateur, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
             reponse = checkWin(&jeu);
             if (strcmp(reponse, "Client2Win") == 0)
             {
@@ -608,9 +635,14 @@ void jeuServeur(int socketClient1, int socketClient2)
                 strcpy(messageEnvoye, "Client2Win");
                 bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
+                sleep(1);
+                strcpy(messageEnvoye, "Client2Win");
+                bytesSent = send(socketSpectateur, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
+                close(socketSpectateur);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -626,9 +658,14 @@ void jeuServeur(int socketClient1, int socketClient2)
                 strcpy(messageEnvoye, "Client2End");
                 bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
+                sleep(1);
+                strcpy(messageEnvoye, "Client2End");
+                bytesSent = send(socketSpectateur, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
 
                 close(socketClient1);
                 close(socketClient2);
+                close(socketSpectateur);
                 printf("Socket de dialogue fermée.\n");
                 return; // Attendre un autre client après la partie terminée
             }
@@ -648,6 +685,72 @@ void jeuServeur(int socketClient1, int socketClient2)
             // FIN DEUXIEME JOUEUR
         }
     }
+}
+/**
+ * fonction gerant la logique du jeu pour un spectateur
+ */
+void jeuSpectateur(int socketDialogue)
+{
+    char messageRecu[LG_MESSAGE];
+    char tour = 'X'; // 'X' pour joueur 1 et 'O' pour joueur 2
+    int bytesReceived;
+    Morpion jeu;
+
+    initialise(&jeu);
+    printf("Connexion au mode spectateur.\n");
+    printf("En attente des mises à jour du jeu...\n");
+
+    while (1)
+    {
+
+        memset(messageRecu, 0x00, LG_MESSAGE);
+
+        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+
+        if (bytesReceived <= 0)
+        {
+            printf("Connexion perdue ou terminée.\n");
+            break;
+        }
+
+        printf("Message du serveur : %s\n", messageRecu);
+
+        int case_jouee = atoi(messageRecu);
+
+        // Mettre à jour la grille avec le symbole du joueur actuel
+        place(&jeu, case_jouee, tour);
+
+        // Alterner le joueur
+        if(tour =='X'){
+            tour = 'O';
+        }
+        else{
+            tour = 'X';
+        }
+
+        // Afficher la grille mise à jour
+        show(&jeu);
+
+        if (strcmp(messageRecu, "Client1Win") == 0)
+        {
+            printf("Le joueur 1 a gagné !\n");
+            break;
+        }
+        else if (strcmp(messageRecu, "Client2Win") == 0)
+        {
+            printf("Le joueur 2 a gagné !\n");
+            break;
+        }
+        else if (strcmp(messageRecu, "MatchNul") == 0)
+        {
+            printf("Match nul !\n");
+            break;
+        }
+    }
+
+    // Fermeture de la socket une fois terminé
+    close(socketDialogue);
+    printf("Mode spectateur terminé. Socket fermée.\n");
 }
 
 /**

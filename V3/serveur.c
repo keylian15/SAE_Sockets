@@ -13,7 +13,7 @@
 
 int main()
 {
-    int socketEcoute, socketClient1, socketClient2;
+    int socketEcoute, socketClient1, socketClient2, socketSpectateur;
     struct sockaddr_in pointDeRencontreLocal, pointDeRencontreDistant;
     socklen_t longueurAdresse;
 
@@ -81,8 +81,16 @@ int main()
                inet_ntoa(pointDeRencontreDistant.sin_addr),
                ntohs(pointDeRencontreDistant.sin_port));
 
-        // Jeu
-        jeuServeur(socketClient1, socketClient2);
+        // spectateur
+        printf("En attente d'une connexion spectateur (optionnelle)...\n");
+        socketSpectateur = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
+
+        printf("Spectateur connecté : %s:%d\n",
+               inet_ntoa(pointDeRencontreDistant.sin_addr),
+               ntohs(pointDeRencontreDistant.sin_port));
+
+        // Lancer le jeu serveur avec spectateur
+        jeuServeur(socketClient1, socketClient2, socketSpectateur);
 
         printf("Fin\n");
     }

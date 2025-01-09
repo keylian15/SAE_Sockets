@@ -90,6 +90,11 @@ int main(int argc, char *argv[])
         // Jeu
         jeuClient(descripteurSocket);
     }
+    else if ((strcmp(messageRecu, "startspectateur") == 0))
+    {
+        jeuSpectateur(descripteurSocket);
+    }
+    
 
     close(descripteurSocket);
     return 0;
