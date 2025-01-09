@@ -509,3 +509,19 @@ bool verifRecu(ssize_t bytesReceived, char *messageRecu)
         return true;
     }
 }
+
+/**
+ * Fonction permettant de lancer un autre terminal client.
+ */
+void terminalClient()
+{
+    char command_client[265];
+    snprintf(command_client, sizeof(command_client), "xterm -hold -e ./client 127.0.0.1 5000 ");
+    int fils2 = fork();
+    if (fils2 == 0)
+    {
+        sleep(1);
+        system(command_client);
+        exit(0);
+    }
+}

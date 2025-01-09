@@ -128,6 +128,7 @@ void jeuClient(int socketDialogue)
             scanf("%d", &choix);
 
             // Envoi le choix au serveur.
+            sleep(1);
             snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
@@ -174,6 +175,7 @@ void jeuServeur(int socketDialogue)
     initialise(&jeu);
 
     // ====== Envoi Message de départ ======
+    sleep(1);
     strcpy(messageEnvoye, "start");
     bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
     verifEnvoye(bytesSent, messageEnvoye);
@@ -191,13 +193,14 @@ void jeuServeur(int socketDialogue)
         // Verification choix.
         if (!isValid(case_client))
         {
+            sleep(1);
             strcpy(messageEnvoye, "erreur");
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
         }
         else
         {
-
+            sleep(1);
             strcpy(messageEnvoye, "confirm");
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
@@ -210,11 +213,11 @@ void jeuServeur(int socketDialogue)
             int case_serveur = rand() % 9 + 1;
 
             // Envoie de la case serveur.
-            messageEnvoye[LG_MESSAGE];
+            sleep(1);
             snprintf(messageEnvoye, LG_MESSAGE, "%d", case_serveur);
             bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
             verifEnvoye(bytesSent, messageEnvoye);
-            
+
             place(&jeu, case_serveur, 'O');
             show(&jeu);
         }
@@ -270,6 +273,22 @@ void verifRecu(ssize_t bytesReceived, char *messageRecu)
     else
     {
         messageRecu[bytesReceived] = '\0';
-        printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu ,bytesReceived);
+        printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu, bytesReceived);
+    }
+}
+
+/**
+ * Fonction permettant de lancer un autre terminal client.
+ */
+void terminalClient()
+{
+    char command_client[265];
+    snprintf(command_client, sizeof(command_client), "xterm -hold -e ./client 127.0.0.1 5000 ");
+    int fils2 = fork();
+    if (fils2 == 0)
+    {
+        sleep(1);
+        system(command_client);
+        exit(0);
     }
 }

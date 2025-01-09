@@ -54,6 +54,10 @@ int main()
         // ====== Attente Demande Connection (4) ======
         printf("En attente d'une connexion...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
+
+        // Commentaire a enlever si execution manuelle.
+        terminalClient();
+
         socketClient1 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
         if (socketClient1 < 0)
         {
@@ -69,6 +73,10 @@ int main()
         // Attente d'une deuxieme connection.
         printf("En attente d'une deuxieme connexion...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
+
+        // Commentaire a enlever si execution manuelle.
+        terminalClient();
+
         socketClient2 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
         if (socketClient2 < 0)
         {

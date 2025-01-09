@@ -33,7 +33,7 @@ int main()
     pointDeRencontreLocal.sin_port = htons(PORT);
     if (bind(socketEcoute, (struct sockaddr *)&pointDeRencontreLocal, sizeof(pointDeRencontreLocal)) < 0)
     {
-        
+
         perror("Erreur d'attachement de l'adresse locale...");
         close(socketEcoute);
         exit(-2);
@@ -54,6 +54,10 @@ int main()
         // ====== Attente Demande Connection (4) ======
         printf("En attente d'une connexion...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
+
+        // Commentaire a enlever si execution manuelle.
+        terminalClient();
+
         socketDialogue = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
         if (socketDialogue < 0)
         {

@@ -69,6 +69,10 @@ int main()
         // ====== Attente Demande Connection (4) ======
         printf("En attente de la connexion du joueur 1...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
+
+        // Commentaire a enlever si execution manuelle.
+        terminalClient();
+
         socketClient1 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
         if (socketClient1 < 0)
         {
@@ -83,6 +87,9 @@ int main()
 
         // Attente d'une deuxieme connection.
         printf("En attente de la connexion du joueur 2...\n");
+
+        // Commentaire a enlever si execution manuelle.
+        terminalClient();
         longueurAdresse = sizeof(pointDeRencontreDistant);
         socketClient2 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
         if (socketClient2 < 0)
@@ -98,11 +105,12 @@ int main()
                ntohs(pointDeRencontreDistant.sin_port));
 
         // Spectateur
-        int listeSocketSpect[nbSpectateurMax]; 
+        int listeSocketSpect[nbSpectateurMax];
         for (int nbSpectateur = 0; nbSpectateur < nbSpectateurMax; nbSpectateur++)
         {
             printf("En attente d'une connexion spectateur n°%d/%d...\n", nbSpectateur, nbSpectateurMax);
-            // socketSpectateur = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
+            // Commentaire a enlever si execution manuelle.
+            terminalClient();
             listeSocketSpect[nbSpectateur] = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
 
             // Info spectateur

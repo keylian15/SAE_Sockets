@@ -23,5 +23,6 @@ void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye);
 bool verifRecu(ssize_t bytesReceived, char *messageRecu);
 
 char *getCaseVide(Morpion *m);
+void terminalClient();
 
 #endif

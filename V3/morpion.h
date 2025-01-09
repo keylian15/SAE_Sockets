@@ -14,8 +14,8 @@ void show(const Morpion *m);
 bool isValid(Morpion *m, int cell);
 void place(Morpion *m, int cell, char form);
 
-char* whoWin(Morpion *m, int x, int y);
-char* checkWin(Morpion *m);
+char *whoWin(Morpion *m, int x, int y);
+char *checkWin(Morpion *m);
 
 void jeuClient(int descripteurSocket);
 void jeuServeur(int socketClient1, int socketClient2, int listeSocketSpect[], int nbSpectateur);
@@ -27,5 +27,5 @@ char *getCaseVide(Morpion *m);
 void sendToSpectate(int sockets[], int nbSpectateurs, const char *message);
 void closeSocket(int sockets[], int nbSpectateurs);
 
-
+void terminalClient();
 #endif

@@ -1,7 +1,0 @@
-A FAIRE : 
-    Revoir les diagrammes des V0 et V1 pour être sur qu'ils soient cohérent.
-    Verifier tous les commentaires au dessus des fonctions des 2 versions.
-    V2
-
-A REFLECHIR : 
-    Lorsqu'on ctrl c le client le serveur s'arrete, il ne devrait pas. (corriger normalement)
