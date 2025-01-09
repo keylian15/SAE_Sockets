@@ -15,14 +15,12 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o morpion morpion.c
    gcc -o serveur serveur.c
    gcc -o client client.c
+   gcc -o main main.c
    clear
-3. Executer les fichiers dans deux termineaux :
+3. Executer le fichier dans un terminal :
    ```bash
-   ./serveur
-   ```
-   ```bash
-   ./client 127.0.0.1 5000
-
+   ./main
+   
 ## Version V1
 
 ### Compilation des fichiers
@@ -37,12 +35,9 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o client client.c
    gcc -o main main.c
    clear
-3. Executer les fichiers dans deux termineaux :
+3. Executer le fichier dans un terminal :
    ```bash
-   ./serveur
-   ```
-   ```bash
-   ./client 127.0.0.1 5000
+   ./main
 
 ## Version V2
 
@@ -58,12 +53,6 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o client client.c
    gcc -o main main.c
    clear
-3. Executer les fichiers dans trois termineaux :
+3. Executer le fichier dans un terminal :
    ```bash
-   ./serveur
-   ```
-   ```bash
-   ./client 127.0.0.1 5000
-   ```
-   ```bash
-   ./client 127.0.0.1 5000
+   ./main
