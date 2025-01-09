@@ -20,7 +20,6 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o main main.c
    clear
    ./serveur
-   ```bash
 3.
    Dans un terminal generer (serveur)
    ```bash
