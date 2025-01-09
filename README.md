@@ -42,3 +42,26 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    ```
    ```bash
    ./client 127.0.0.1 5000
+
+## Version V2
+
+### Compilation des fichiers
+
+1. Accédez au répertoire `V2` :
+   ```bash
+   cd V1
+2. Compiler les fichiers :
+   ```bash
+   gcc -o morpion morpion.c
+   gcc -o serveur serveur.c
+   gcc -o client client.c
+   clear
+3. Executer les fichiers dans trois termineaux :
+   ```bash
+   ./serveur
+   ```
+   ```bash
+   ./client 127.0.0.1 5000
+   ```
+   ```bash
+   ./client 127.0.0.1 5000
