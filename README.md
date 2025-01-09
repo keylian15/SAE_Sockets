@@ -10,7 +10,19 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
 1. Accédez au répertoire `V0` ou `V1` ou `V2` ou `V3` ou `V4`: 
    ```bash
    cd V0
-2. Compiler et executer les fichiers dans un terminal :
+
+2. Compiler et executer les fichiers vous avez deux solutions :
+    Dans votre propre terminal (serveur)
+   ```bash
+   gcc -o morpion morpion.c
+   gcc -o serveur serveur.c
+   gcc -o client client.c
+   gcc -o main main.c
+   clear
+   ./serveur
+   ```bash
+3.
+   Dans un terminal generer (serveur)
    ```bash
    gcc -o morpion morpion.c
    gcc -o serveur serveur.c
