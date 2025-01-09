@@ -182,37 +182,6 @@ char *checkWin(Morpion *m)
 }
 
 /**
- * Fonction permettant d'avoir la liste des cases vides de la grille.
- * getCaseVide(&m);
- * @param *m Le morpion
- * @return La liste sous forme : "2 4" par exemple. */
-char *getCaseVide(Morpion *m)
-{
-    static char listeCase[20];
-    int index = 0;
-    int count = 1;
-
-    for (int i = 0; i < 3; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            if (m->grille[i][j] == ' ')
-            {
-                if (index > 0)
-                {
-                    listeCase[index++] = '-';
-                }
-                listeCase[index++] = '0' + count;
-            }
-            count++;
-        }
-    }
-
-    listeCase[index] = '\0';
-    return listeCase;
-}
-
-/**
  * Fonction gerant la logique du jeu lorsque c'est le client qui joue.
  */
 void jeuClient(int socketDialogue)
