@@ -2,6 +2,13 @@
 
 Ce projet utilise des sockets pour implémenter une communication entre un serveur et un client. 
 Dans le but de coder un T3N (Tic Tac Toe Network)
+### Versions Finies :
+`V0` - Jeu sans regles client serveur
+`V1` - Jeu avec regles client serveur
+`V2` - Jeu avec regles client client serveur (arbritre)
+`V3` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) 
+### Versions Non Finies :
+`V3` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) + Possibilité de plusieurs parties  
 
 ## Pour toutes les versions
 
