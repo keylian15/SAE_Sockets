@@ -447,7 +447,7 @@ void jeuServeur(int socketDialogue)
 
 /**
  * Fonction permettant de verifier l'envoye d'un message envoyé.
- * verifRecu(bytesReceived, messageRecu);
+ * verifEnvoye(bytesReceived, messageEnvoye);
  * @param bytesSent le retour de la fonction send()
  * @param *messageEnvoye Le message envoyé;
  */

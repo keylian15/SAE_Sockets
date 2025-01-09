@@ -249,7 +249,9 @@ void jeuClient(int socketDialogue)
             // ====== Réception Message Serveur ======
             memset(messageRecu, 0x00, LG_MESSAGE);
             bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-            verifRecu(bytesReceived, messageRecu);
+            if(!verifRecu(bytesReceived, messageRecu)){
+                return;
+            }
 
             if (strcmp(messageRecu, "confirm") == 0)
             {
@@ -263,7 +265,9 @@ void jeuClient(int socketDialogue)
 
         // Recevoir le Xwin ou Xend ou Rien.
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-        verifRecu(bytesReceived, messageRecu);
+        if(!verifRecu(bytesReceived, messageRecu)){
+                return;
+            }
 
         if (strcmp(messageRecu, "Xwin") == 0)
         {
@@ -282,7 +286,9 @@ void jeuClient(int socketDialogue)
 
         // Recevoir la case serveur.
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-        verifRecu(bytesReceived, messageRecu);
+        if(!verifRecu(bytesReceived, messageRecu)){
+                return;
+            }
 
         // Place la case du serveur coté client.
         printf("Au serveur de jouer : \n");
@@ -292,7 +298,9 @@ void jeuClient(int socketDialogue)
 
         // Recevoir le message du serveur.
         bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-        verifRecu(bytesReceived, messageRecu);
+        if(!verifRecu(bytesReceived, messageRecu)){
+                return;
+            }
 
         if (strcmp(messageRecu, "Owin") == 0)
         {
@@ -338,7 +346,9 @@ void jeuServeur(int socketDialogue)
         {
             memset(messageRecu, 0x00, LG_MESSAGE);
             bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-            verifRecu(bytesReceived, messageRecu);
+            if(!verifRecu(bytesReceived, messageRecu)){
+                return;
+            }
 
             int case_client = atoi(messageRecu);
 
@@ -472,24 +482,30 @@ void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye)
 
 /**
  * Fonction permettant de verifier le recu d'un message receptionné.
- * verifRecu(bytesReceived, messageRecu);
+ * if(!verifRecu(bytesReceived, messageRecu)){
+                return;
+            }
  * @param bytesReceived le retour de la fonction recv()
  * @param *messageRecu Le message recu;
+ * @return false si erreur true si aucune erreur
  */
-void verifRecu(ssize_t bytesReceived, char *messageRecu)
+bool verifRecu(ssize_t bytesReceived, char *messageRecu)
 {
     if (bytesReceived < 0)
     {
         perror("Erreur lors de la réception du message");
+        return false;
         // Gestion d'erreur ici
     }
     else if (bytesReceived == 0)
     {
         printf("Le socket a été fermé par l'émetteur.\n");
+        return false;
     }
     else
     {
         messageRecu[bytesReceived] = '\0';
         printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu, bytesReceived);
+        return true;
     }
 }
