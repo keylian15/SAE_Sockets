@@ -13,9 +13,24 @@
 
 int main()
 {
-    int socketEcoute, socketClient1, socketClient2, socketSpectateur;
+    int socketEcoute, socketClient1, socketClient2;
     struct sockaddr_in pointDeRencontreLocal, pointDeRencontreDistant;
     socklen_t longueurAdresse;
+    int nbSpectateurMax;
+    bool conditionNbJoueur;
+    // ====== Demande Nombre Spectateur ======
+    conditionNbJoueur = false;
+    while (!conditionNbJoueur)
+    {
+        printf("Entrez le nombre de spectateur (0 - 3) : \n");
+        scanf(" %d", &nbSpectateurMax);
+        printf("Vous avez choisi %d.\n", nbSpectateurMax);
+        if (nbSpectateurMax > -1 && nbSpectateurMax < 4)
+        {
+            conditionNbJoueur = true;
+        }
+    }
+    // ====== Fin Demande Nombre Spectateur ======
 
     // ====== Création socket (1) ======
     socketEcoute = socket(AF_INET, SOCK_STREAM, 0);
@@ -52,7 +67,7 @@ int main()
     while (1)
     {
         // ====== Attente Demande Connection (4) ======
-        printf("En attente d'une connexion...\n");
+        printf("En attente de la connexion du joueur 1...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
         socketClient1 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
         if (socketClient1 < 0)
@@ -67,7 +82,7 @@ int main()
                ntohs(pointDeRencontreDistant.sin_port));
 
         // Attente d'une deuxieme connection.
-        printf("En attente d'une deuxieme connexion...\n");
+        printf("En attente de la connexion du joueur 2...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
         socketClient2 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
         if (socketClient2 < 0)
@@ -76,21 +91,28 @@ int main()
             close(socketEcoute);
             exit(-4);
         }
+
         // Info client.
         printf("Client n°2 connecté : %s:%d\n",
                inet_ntoa(pointDeRencontreDistant.sin_addr),
                ntohs(pointDeRencontreDistant.sin_port));
 
-        // spectateur
-        printf("En attente d'une connexion spectateur (optionnelle)...\n");
-        socketSpectateur = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
+        // Spectateur
+        int listeSocketSpect[nbSpectateurMax]; 
+        for (int nbSpectateur = 0; nbSpectateur < nbSpectateurMax; nbSpectateur++)
+        {
+            printf("En attente d'une connexion spectateur n°%d/%d...\n", nbSpectateur, nbSpectateurMax);
+            // socketSpectateur = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
+            listeSocketSpect[nbSpectateur] = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
 
-        printf("Spectateur connecté : %s:%d\n",
-               inet_ntoa(pointDeRencontreDistant.sin_addr),
-               ntohs(pointDeRencontreDistant.sin_port));
+            // Info spectateur
+            printf("Spectateur connecté : %s:%d\n",
+                   inet_ntoa(pointDeRencontreDistant.sin_addr),
+                   ntohs(pointDeRencontreDistant.sin_port));
+        }
 
         // Lancer le jeu serveur avec spectateur
-        jeuServeur(socketClient1, socketClient2, socketSpectateur);
+        jeuServeur(socketClient1, socketClient2, listeSocketSpect, nbSpectateurMax);
 
         printf("Fin\n");
     }
