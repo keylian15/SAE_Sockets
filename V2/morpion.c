@@ -102,7 +102,7 @@ bool isValid(Morpion *m, int cell)
 }
 
 /**
- * place dans la grille la forme demannder
+ * place dans la grille la forme demander
  * place(&m,3,x);
  * @param cell numero de la cellule
  * @param form la forme qui est entrée
@@ -134,11 +134,11 @@ char *whoWin(Morpion *m, int x, int y)
 
     if (m->grille[x][y] == 'X')
     {
-        return "Xwin";
+        return "Client1Win";
     }
     if (m->grille[x][y] == 'O')
     {
-        return "Owin";
+        return "Client2Win";
     }
     else
     {
@@ -222,7 +222,7 @@ void jeuClient(int socketDialogue)
     char messageRecu[LG_MESSAGE];
     int bytesReceived;
     int bytesSent;
-    bool condition = false;
+    bool conditionNb = false;
 
     Morpion jeu;
     initialise(&jeu);
@@ -230,83 +230,204 @@ void jeuClient(int socketDialogue)
     printf("Début du jeu.\n");
     while (1)
     {
-        // Montre la grille
-        show(&jeu);
         int choix;
-        condition = false;
-        while (!condition)
+        conditionNb = false;
+
+        // Recevoir le message de tour.
+        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+        if (!verifRecu(bytesReceived, messageRecu))
         {
-            // Demander au client de choisir une case
-            printf("Choisissez votre case (1 à 9) :\n");
-            scanf("%d", &choix);
+            return;
+        }
+        if (strcmp(messageRecu, "A vous de jouer") == 0)
+        {
+            // Montre le jeu
+            show(&jeu);
 
-            // Envoi le choix au serveur.
-            sleep(1);
-            snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
-            bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
-            verifEnvoye(bytesSent, messageEnvoye);
-
-            // ====== Réception Message Serveur ======
-            memset(messageRecu, 0x00, LG_MESSAGE);
-            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-            verifRecu(bytesReceived, messageRecu);
-
-            if (strcmp(messageRecu, "confirm") == 0)
+            // Choix de la case
+            while (!conditionNb)
             {
-                condition = true;
+                printf("Choisissez votre case (1 à 9) :\n");
+                scanf("%d", &choix);
+
+                // Envoi le choix au serveur.
+                sleep(1);
+                snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
+                bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+
+                // ====== Réception Message Serveur ======
+                memset(messageRecu, 0x00, LG_MESSAGE);
+                bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+                if (!verifRecu(bytesReceived, messageRecu))
+                {
+                    return;
+                }
+                if (strcmp(messageRecu, "confirm") == 0)
+                {
+                    conditionNb = true;
+                }
+            }
+
+            // Placer la case du client coté client.
+            place(&jeu, choix, 'X');
+            show(&jeu);
+
+            // Recevoir le Client1Win ou Clien1End ou Rien.
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
+            if (strcmp(messageRecu, "Client1Win") == 0)
+            {
+                printf("Le client 1 a gagné !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
+            }
+            if (strcmp(messageRecu, "Client1End") == 0)
+            {
+                printf("Match nul !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
+            }
+
+            // Recoit instruction inversion tours
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
+
+            // Recevoir la case du client 2.
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
+
+            // Placer la case du client 2 coté client.
+            int case_client_2 = atoi(messageRecu);
+            place(&jeu, case_client_2, 'O');
+
+            // Recevoir le Client2Win ou Clien2End ou Rien.
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
+            if (strcmp(messageRecu, "Client2Win") == 0)
+            {
+                printf("Le client 2 a gagné !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
+            }
+            if (strcmp(messageRecu, "Client2End") == 0)
+            {
+                printf("Match nul !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
             }
         }
 
-        // Placer la case du client coté client.
-        place(&jeu, choix, 'X');
-        show(&jeu);
-
-        // Recevoir le Xwin ou Xend ou Rien.
-        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-        verifRecu(bytesReceived, messageRecu);
-
-        if (strcmp(messageRecu, "Xwin") == 0)
+        else
         {
-            printf("Le client a gagné !\n");
-            close(socketDialogue);
-            printf("Socket de dialogue fermée.\n");
-            break;
-        }
-        if (strcmp(messageRecu, "Xend") == 0)
-        {
-            printf("Match nul !\n");
-            close(socketDialogue);
-            printf("Socket de dialogue fermée.\n");
-            break;
-        }
+            memset(messageRecu, 0x00, LG_MESSAGE);
 
-        // Recevoir la case serveur.
-        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-        verifRecu(bytesReceived, messageRecu);
+            // Reception la case du client 1.
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
 
-        // Place la case du serveur coté client.
-        printf("Au serveur de jouer : \n");
-        int case_serveur = atoi(messageRecu);
-        place(&jeu, case_serveur, 'O');
-        show(&jeu);
+            // Placer la case du client 1 coté client.
+            int case_client_1 = atoi(messageRecu);
+            place(&jeu, case_client_1, 'X');
+            show(&jeu);
 
-        // Recevoir le message du serveur.
-        bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-        verifRecu(bytesReceived, messageRecu);
+            // Recevoir le Client1Win ou Clien1End ou Rien.
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
+            if (strcmp(messageRecu, "Client1Win") == 0)
+            {
+                printf("Le client 1 a gagné !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
+            }
+            if (strcmp(messageRecu, "Client1End") == 0)
+            {
+                printf("Match nul !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
+            }
 
-        if (strcmp(messageRecu, "Owin") == 0)
-        {
-            printf("Le serveur a gagné !\n");
-            close(socketDialogue);
-            printf("Socket de dialogue fermée.\n");
-            break;
-        }
-        if (strcmp(messageRecu, "Oend") == 0)
-        {
-            printf("Match nul !\n");
-            close(socketDialogue);
-            printf("Socket de dialogue fermée.\n");
-            break;
+            // Reception instruction tour
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
+
+            // show(&jeu);
+
+            // Choix de la case
+            while (!conditionNb)
+            {
+                printf("Choisissez votre case (1 à 9) :\n");
+                scanf("%d", &choix);
+
+                // Envoi le choix au serveur.
+                sleep(1);
+                snprintf(messageEnvoye, sizeof(messageEnvoye), "%d", choix);
+                bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+
+                // ====== Réception Message Serveur ======
+                bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+                if (!verifRecu(bytesReceived, messageRecu))
+                {
+                    return;
+                }
+                if (strcmp(messageRecu, "confirm") == 0)
+                {
+                    conditionNb = true;
+                }
+            }
+
+            // Placer la case du client 2 coté client.
+            place(&jeu, choix, 'O');
+            show(&jeu);
+
+            // Recevoir le Client2Win ou Clien2End ou Rien.
+            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
+            if (!verifRecu(bytesReceived, messageRecu))
+            {
+                return;
+            }
+            if (strcmp(messageRecu, "Client2Win") == 0)
+            {
+                printf("Le client 2 a gagné !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
+            }
+            if (strcmp(messageRecu, "Client2End") == 0)
+            {
+                printf("Match nul !\n");
+                close(socketDialogue);
+                printf("Socket de dialogue fermée.\n");
+                break;
+            }
         }
     }
 }
@@ -314,13 +435,16 @@ void jeuClient(int socketDialogue)
 /**
  * Fonction gerant la logique du jeu lorsque c'est le serveur qui joue.
  */
-void jeuServeur(int socketDialogue)
+void jeuServeur(int socketClient1, int socketClient2)
 {
     printf("Début du jeu.\n");
     int bytesSent;
     int bytesReceived;
     char messageRecu[LG_MESSAGE];
     char messageEnvoye[LG_MESSAGE];
+    bool conditionNb = false;
+    int case_client;
+    char *reponse;
 
     Morpion jeu;
     initialise(&jeu);
@@ -328,119 +452,231 @@ void jeuServeur(int socketDialogue)
     while (1)
     {
         // ====== Envoi Message de départ ======
+        // Au client 1 :
         sleep(1);
         strcpy(messageEnvoye, "start");
-        bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+        bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+        verifEnvoye(bytesSent, messageEnvoye);
+
+        // Au client 2 :
+        sleep(1);
+        strcpy(messageEnvoye, "start");
+        bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
         verifEnvoye(bytesSent, messageEnvoye);
 
         // ====== Boucle de jeu ======
         while (1)
         {
-            memset(messageRecu, 0x00, LG_MESSAGE);
-            bytesReceived = recv(socketDialogue, messageRecu, LG_MESSAGE, 0);
-            verifRecu(bytesReceived, messageRecu);
+            conditionNb = false;
+            // Envoie message de tour.
+            // Au client 1 :
+            sleep(1);
+            strcpy(messageEnvoye, "A vous de jouer");
+            bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
 
-            int case_client = atoi(messageRecu);
+            // Au client 2 :
+            sleep(1);
+            strcpy(messageEnvoye, "Le joueur 1 joue");
+            bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
 
-            if (!isValid(&jeu, case_client))
+            // Recevoir case client 1
+            while (!conditionNb)
             {
+                memset(messageRecu, 0x00, LG_MESSAGE);
+                bytesReceived = recv(socketClient1, messageRecu, LG_MESSAGE, 0);
+                if (!verifRecu(bytesReceived, messageRecu))
+                {
+                    return;
+                }
+
+                case_client = atoi(messageRecu);
+                if (!isValid(&jeu, case_client))
+                {
+                    sleep(1);
+                    strcpy(messageEnvoye, "erreur");
+                    bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                    verifEnvoye(bytesSent, messageEnvoye);
+                }
+                else
+                {
+                    conditionNb = true;
+                }
+            }
+
+            // Valider la case du client 1
+            sleep(1);
+            strcpy(messageEnvoye, "confirm");
+            bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
+            // Envoyer la case au client 2.
+            sleep(1);
+            snprintf(messageEnvoye, LG_MESSAGE, "%d", case_client);
+            bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
+            // Placer la case du client 1 coté serveur.
+            place(&jeu, case_client, 'X');
+            show(&jeu);
+
+            reponse = checkWin(&jeu);
+            if (strcmp(reponse, "Client1Win") == 0)
+            {
+                // Envoie Client 1 :
                 sleep(1);
-                strcpy(messageEnvoye, "erreur");
-                bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                strcpy(messageEnvoye, "Client1Win");
+                bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
+                // Envoie Client 2 :
+                sleep(1);
+                strcpy(messageEnvoye, "Client1Win");
+                bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+
+                close(socketClient1);
+                close(socketClient2);
+                printf("Socket de dialogue fermée.\n");
+                return; // Attendre un autre client après la partie terminée
+            }
+            if (isFull(&jeu))
+            {
+                // Envoie Client 1 :
+                sleep(1);
+                strcpy(messageEnvoye, "Client1End");
+                bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+                // Envoie Client 2 :
+                sleep(1);
+                strcpy(messageEnvoye, "Client1End");
+                bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+
+                close(socketClient1);
+                close(socketClient2);
+                printf("Socket de dialogue fermée.\n");
+                return; // Attendre un autre client après la partie terminée
             }
             else
             {
+                // Envoie Client 1 :
                 sleep(1);
-                strcpy(messageEnvoye, "confirm");
-                bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                strcpy(messageEnvoye, "rien");
+                bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                 verifEnvoye(bytesSent, messageEnvoye);
+                // Envoie Client 2 :
+                sleep(1);
+                strcpy(messageEnvoye, "rien");
+                bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+            }
 
-                // Placer la case du client coté serveur.
-                place(&jeu, case_client, 'X');
-                show(&jeu);
+            // Envoie instruction tour.
+            // Au client 1 :
+            sleep(1);
+            strcpy(messageEnvoye, "Le joueur 2 joue");
+            bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
 
-                char *reponse = checkWin(&jeu);
-                if (strcmp(reponse, "Xwin") == 0)
+            // Au client 2 :
+            sleep(1);
+            strcpy(messageEnvoye, "A vous de jouer");
+            bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
+            // Recevoir case client 2
+            conditionNb = false;
+            while (!conditionNb)
+            {
+                memset(messageRecu, 0x00, LG_MESSAGE);
+                bytesReceived = recv(socketClient2, messageRecu, LG_MESSAGE, 0);
+                if (!verifRecu(bytesReceived, messageRecu))
                 {
-                    sleep(1);
-                    strcpy(messageEnvoye, "Xwin");
-                    bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
-                    verifEnvoye(bytesSent, messageEnvoye);
-                    close(socketDialogue);
-                    printf("Socket de dialogue fermée.\n");
-                    return; // Attendre un autre client après la partie terminée
+                    return;
                 }
-                if (isFull(&jeu))
+
+                case_client = atoi(messageRecu);
+                if (!isValid(&jeu, case_client))
                 {
                     sleep(1);
-                    strcpy(messageEnvoye, "Xend");
-                    bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                    strcpy(messageEnvoye, "erreur");
+                    bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
                     verifEnvoye(bytesSent, messageEnvoye);
-                    close(socketDialogue);
-                    printf("Socket de dialogue fermée.\n");
-                    return; // Attendre un autre client après la partie terminée
                 }
                 else
                 {
-                    sleep(1);
-                    strcpy(messageEnvoye, "rien");
-                    bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
-                    verifEnvoye(bytesSent, messageEnvoye);
-                }
-
-                char *listeCaseVide = getCaseVide(&jeu);
-                char *token = strtok(listeCaseVide, "-");
-                char *tokens[50];
-                int count = 0;
-
-                while (token != NULL)
-                {
-                    tokens[count++] = token;
-                    token = strtok(NULL, "-");
-                }
-
-                srand(time(NULL));
-                int index_case_serveur = rand() % count;
-                int case_serveur = atoi(tokens[index_case_serveur]);
-
-                sleep(1);
-                snprintf(messageEnvoye, LG_MESSAGE, "%d", case_serveur);
-                bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
-                verifEnvoye(bytesSent, messageEnvoye);
-
-                place(&jeu, case_serveur, 'O');
-                show(&jeu);
-
-                reponse = checkWin(&jeu);
-                if (strcmp(reponse, "Owin") == 0)
-                {
-                    sleep(1);
-                    strcpy(messageEnvoye, "Owin");
-                    bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
-                    verifEnvoye(bytesSent, messageEnvoye);
-                    close(socketDialogue);
-                    printf("Socket de dialogue fermée.\n");
-                    return; // Attendre un autre client après la partie terminée
-                }
-                if (isFull(&jeu))
-                {
-                    sleep(1);
-                    strcpy(messageEnvoye, "Oend");
-                    bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
-                    verifEnvoye(bytesSent, messageEnvoye);
-                    close(socketDialogue);
-                    printf("Socket de dialogue fermée.\n");
-                    return; // Attendre un autre client après la partie terminée
-                }
-                else
-                {
-                    sleep(1);
-                    strcpy(messageEnvoye, "continue");
-                    bytesSent = send(socketDialogue, messageEnvoye, strlen(messageEnvoye) + 1, 0);
-                    verifEnvoye(bytesSent, messageEnvoye);
+                    conditionNb = true;
                 }
             }
+
+            // Confirmer la case du joueur 2.
+            sleep(1);
+            strcpy(messageEnvoye, "confirm");
+            bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
+            // Envoyer la case au client 1.
+            sleep(1);
+            snprintf(messageEnvoye, LG_MESSAGE, "%d", case_client);
+            bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+            verifEnvoye(bytesSent, messageEnvoye);
+
+            // Placer la case du client 2 coté serveur.
+            place(&jeu, case_client, 'O');
+            show(&jeu);
+
+            reponse = checkWin(&jeu);
+            if (strcmp(reponse, "Client2Win") == 0)
+            {
+                // Envoie Client 1 :
+                sleep(1);
+                strcpy(messageEnvoye, "Client2Win");
+                bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+                // Envoie Client 2 :
+                sleep(1);
+                strcpy(messageEnvoye, "Client2Win");
+                bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+
+                close(socketClient1);
+                close(socketClient2);
+                printf("Socket de dialogue fermée.\n");
+                return; // Attendre un autre client après la partie terminée
+            }
+            if (isFull(&jeu))
+            {
+                // Envoie Client 1 :
+                sleep(1);
+                strcpy(messageEnvoye, "Client2End");
+                bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+                // Envoie Client 2 :
+                sleep(1);
+                strcpy(messageEnvoye, "Client2End");
+                bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+
+                close(socketClient1);
+                close(socketClient2);
+                printf("Socket de dialogue fermée.\n");
+                return; // Attendre un autre client après la partie terminée
+            }
+            else
+            {
+                // Envoie Client 1 :
+                sleep(1);
+                strcpy(messageEnvoye, "rien");
+                bytesSent = send(socketClient1, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+                // Envoie Client 2 :
+                sleep(1);
+                strcpy(messageEnvoye, "rien");
+                bytesSent = send(socketClient2, messageEnvoye, strlen(messageEnvoye) + 1, 0);
+                verifEnvoye(bytesSent, messageEnvoye);
+            }
+            // FIN DEUXIEME JOUEUR
         }
     }
 }
@@ -472,24 +708,30 @@ void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye)
 
 /**
  * Fonction permettant de verifier le recu d'un message receptionné.
- * verifRecu(bytesReceived, messageRecu);
+ * if(!verifRecu(bytesReceived, messageRecu)){
+                return;
+            }
  * @param bytesReceived le retour de la fonction recv()
  * @param *messageRecu Le message recu;
+ * @return false si erreur true si aucune erreur
  */
-void verifRecu(ssize_t bytesReceived, char *messageRecu)
+bool verifRecu(ssize_t bytesReceived, char *messageRecu)
 {
     if (bytesReceived < 0)
     {
         perror("Erreur lors de la réception du message");
+        return false;
         // Gestion d'erreur ici
     }
     else if (bytesReceived == 0)
     {
         printf("Le socket a été fermé par l'émetteur.\n");
+        return false;
     }
     else
     {
         messageRecu[bytesReceived] = '\0';
         printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu, bytesReceived);
+        return true;
     }
 }

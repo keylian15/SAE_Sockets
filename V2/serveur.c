@@ -13,7 +13,7 @@
 
 int main()
 {
-    int socketEcoute, socketDialogue;
+    int socketEcoute, socketClient1, socketClient2;
     struct sockaddr_in pointDeRencontreLocal, pointDeRencontreDistant;
     socklen_t longueurAdresse;
 
@@ -33,7 +33,7 @@ int main()
     pointDeRencontreLocal.sin_port = htons(PORT);
     if (bind(socketEcoute, (struct sockaddr *)&pointDeRencontreLocal, sizeof(pointDeRencontreLocal)) < 0)
     {
-        
+
         perror("Erreur d'attachement de l'adresse locale...");
         close(socketEcoute);
         exit(-2);
@@ -54,17 +54,35 @@ int main()
         // ====== Attente Demande Connection (4) ======
         printf("En attente d'une connexion...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
-        socketDialogue = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
-        if (socketDialogue < 0)
+        socketClient1 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
+        if (socketClient1 < 0)
         {
             perror("Erreur lors de l'acceptation...");
             close(socketEcoute);
             exit(-4);
         }
-        printf("Connexion acceptée.\n");
+        // Info client.
+        printf("Client n°1 connecté : %s:%d\n",
+               inet_ntoa(pointDeRencontreDistant.sin_addr),
+               ntohs(pointDeRencontreDistant.sin_port));
+
+        // Attente d'une deuxieme connection.
+        printf("En attente d'une deuxieme connexion...\n");
+        longueurAdresse = sizeof(pointDeRencontreDistant);
+        socketClient2 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
+        if (socketClient2 < 0)
+        {
+            perror("Erreur lors de l'acceptation...");
+            close(socketEcoute);
+            exit(-4);
+        }
+        // Info client.
+        printf("Client n°2 connecté : %s:%d\n",
+               inet_ntoa(pointDeRencontreDistant.sin_addr),
+               ntohs(pointDeRencontreDistant.sin_port));
 
         // Jeu
-        jeuServeur(socketDialogue);
+        jeuServeur(socketClient1, socketClient2);
 
         printf("Fin\n");
     }
