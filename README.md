@@ -26,7 +26,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o T3N_client_V3 T3N_client_V3.c
    gcc -o main main.c
    clear
-   ./serveur
+   ./T3N_serveur_V3
 3.
    Dans un terminal generer (serveur)
    ```bash
