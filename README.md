@@ -18,23 +18,16 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    ```bash
    cd V0
 
-2. Compiler et executer les fichiers vous avez deux solutions :
-    Dans votre propre terminal (serveur)
+2. Compiler les fichiers :
    ```bash
    gcc -o morpion morpion.c
    gcc -o T3N_serveur_V0 T3N_serveur_V0.c
    gcc -o T3N_client_V0 T3N_client_V0.c
    gcc -o main main.c
    clear
-   ./T3N_serveur_V0
-3.
-   Dans un terminal generer (serveur)
+3. Lancer de deux facons différentes : 
    ```bash
-   gcc -o morpion morpion.c
-   gcc -o T3N_serveur_V0 T3N_serveur_V0.c
-   gcc -o T3N_client_V3 T3N_client_V3.c
-   gcc -o main main.c
-   clear
+   ./T3N_serveur_V0
    ./main
 
 ## Pour `V1` : 
@@ -46,7 +39,6 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    cd V1
 
 2. Compiler les fichiers :
-    Dans votre propre terminal (serveur)
    ```bash
    gcc -o morpion morpion.c
    gcc -o T3N_serveur_V1 T3N_serveur_V1.c
@@ -54,10 +46,9 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o main main.c
    clear
 
-3. Lancer de facons différentes :
+3. Lancer de deux facons différentes : 
    ```bash
    ./T3N_serveur_V1
-   ```bash
    ./main
 
 ## Pour `V2` : 
@@ -69,7 +60,6 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    cd V2
 
 2. Compiler les fichiers :
-    Dans votre propre terminal (serveur)
    ```bash
    gcc -o morpion morpion.c
    gcc -o T3N_serveur_V2 T3N_serveur_V2.c
@@ -77,10 +67,9 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o main main.c
    clear
 
-3. Lancer de facons différentes :
+3. Lancer de deux facons différentes : 
    ```bash
    ./T3N_serveur_V2
-   ```bash
    ./main
 
 ## Pour `V3` : 
@@ -92,7 +81,6 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    cd V3
 
 2. Compiler les fichiers :
-    Dans votre propre terminal (serveur)
    ```bash
    gcc -o morpion morpion.c
    gcc -o T3N_serveur_V3 T3N_serveur_V3.c
@@ -100,10 +88,9 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o main main.c
    clear
 
-3. Lancer de facons différentes :
+3. Lancer de deux facons différentes : 
    ```bash
    ./T3N_serveur_V3
-   ```bash
    ./main
 
 ## Pour `V4` : 
@@ -115,7 +102,6 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    cd V4
 
 2. Compiler les fichiers :
-    Dans votre propre terminal (serveur)
    ```bash
    gcc -o morpion morpion.c
    gcc -o T3N_serveur_V4 T3N_serveur_V4.c
@@ -123,8 +109,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o main main.c
    clear
 
-3. Lancer de facons différentes :
+3. Lancer de deux facons différentes : 
    ```bash
    ./T3N_serveur_V4
-   ```bash
    ./main
