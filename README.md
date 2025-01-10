@@ -30,9 +30,9 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
 3.
    Dans un terminal generer (serveur)
    ```bash
-   gcc -o morpion morpion.c
-   gcc -o serveur serveur.c
-   gcc -o client client.c
+  gcc -o morpion morpion.c
+   gcc -o T3N_serveur_V3 T3N_serveur_V3.c
+   gcc -o T3N_client_V3 T3N_client_V3.c
    gcc -o main main.c
    clear
    ./main
