@@ -8,7 +8,7 @@ int main()
     char command_server[265];
     int nbPartie;
 
-    snprintf(command_server, sizeof(command_server), "xterm -hold -e ./serveur");
+    snprintf(command_server, sizeof(command_server), "xterm -hold -e ./T3N_serveur_V4");
     system(command_server);
 
     return 0;

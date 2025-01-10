@@ -712,7 +712,7 @@ bool verifRecu(ssize_t bytesReceived, char *messageRecu)
 void terminalClient()
 {
     char command_client[265];
-    snprintf(command_client, sizeof(command_client), "xterm -hold -e ./client 127.0.0.1 5000 ");
+    snprintf(command_client, sizeof(command_client), "xterm -hold -e ./T3N_client_V2 127.0.0.1 5000 ");
     int fils2 = fork();
     if (fils2 == 0)
     {
