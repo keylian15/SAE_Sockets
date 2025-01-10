@@ -23,7 +23,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    ```bash
    gcc -o morpion morpion.c
    gcc -o T3N_serveur_V0 T3N_serveur_V0.c
-   gcc -o T3N_client_V3 T3N_client_V3.c
+   gcc -o T3N_client_V0 T3N_client_V0.c
    gcc -o main main.c
    clear
    ./T3N_serveur_V0

@@ -839,7 +839,7 @@ void closeSocket(int sockets[], int nbSpectateurs)
 /**
  * Fonction permettant de lancer un autre terminal client.
  */
-void terminalClient(int port)
+void terminalClient()
 {
     char command_client[265];
     snprintf(command_client, sizeof(command_client), "xterm -hold -e ./client 127.0.0.1 5000 ");

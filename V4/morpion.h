@@ -27,6 +27,6 @@ char *getCaseVide(Morpion *m);
 void sendToSpectate(int sockets[], int nbSpectateurs, const char *message);
 void closeSocket(int sockets[], int nbSpectateurs);
 
-void terminalClient(int port);
+void terminalClient();
 
 #endif
