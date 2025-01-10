@@ -8,7 +8,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
 `V2` - Jeu avec regles client client serveur (arbritre)
 `V3` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) 
 ### Versions Non Finies :
-`V3` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) + Possibilité de plusieurs parties  
+`V4` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) + Possibilité de plusieurs parties  
 
 ## Pour toutes les versions
 
