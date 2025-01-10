@@ -851,3 +851,7 @@ void terminalClient()
         exit(0);
     }
 }
+
+int main(){
+    return 1;
+}
