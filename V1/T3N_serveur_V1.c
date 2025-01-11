@@ -54,7 +54,7 @@ int main()
         // ====== Attente Demande Connection (4) ======
         printf("En attente d'une connexion...\n");
 
-        // Commentaire a enlever si execution manuelle.
+        // Commentaire a rajouter si vous voulez une execution manuelle.
         terminalClient();
 
         longueurAdresse = sizeof(pointDeRencontreDistant);

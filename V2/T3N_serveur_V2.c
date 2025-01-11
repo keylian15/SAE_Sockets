@@ -55,7 +55,7 @@ int main()
         printf("En attente d'une connexion...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
 
-        // Commentaire a enlever si execution manuelle.
+        // Commentaire a rajouter si vous voulez une execution manuelle.
         terminalClient();
 
         socketClient1 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);
@@ -74,7 +74,7 @@ int main()
         printf("En attente d'une deuxieme connexion...\n");
         longueurAdresse = sizeof(pointDeRencontreDistant);
 
-        // Commentaire a enlever si execution manuelle.
+        // Commentaire a rajouter si vous voulez une execution manuelle.
         terminalClient();
 
         socketClient2 = accept(socketEcoute, (struct sockaddr *)&pointDeRencontreDistant, &longueurAdresse);

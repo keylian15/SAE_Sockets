@@ -772,6 +772,7 @@ void verifEnvoye(ssize_t bytesSent, const char *messageEnvoye)
     }
     else
     {
+        // Commentaire a rajouter si vous ne souhaitez pas de logs.
         printf("Message envoyé '%s' avec succès (%zd octets)\n", messageEnvoye, bytesSent);
     }
 }
@@ -801,6 +802,7 @@ bool verifRecu(ssize_t bytesReceived, char *messageRecu)
     else
     {
         messageRecu[bytesReceived] = '\0';
+        // Commentaire a rajouter si vous ne souhaitez pas de logs.
         printf("Message reçu '%s' avec succès (%zd octets) \n", messageRecu, bytesReceived);
         return true;
     }
