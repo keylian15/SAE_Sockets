@@ -1,3 +1,6 @@
+### Fait par : 
+# Turbé Keylian, Siame Romain, Arnoult Antoine.
+
 # SAE_Sockets
 
 Ce projet utilise des sockets pour implémenter une communication entre un serveur et un client. 
