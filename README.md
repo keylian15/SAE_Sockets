@@ -10,8 +10,13 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
 ### Versions Non Finies :
 `V4` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) + Possibilité de plusieurs parties. Actuellement nous avons des soucis avec les processus fils et la gestion du serveur.
 
+## A NOTER :
+1. Si vous souhaiter gerer vous même l'excution de chaque client il vous suffit de commenter la ligne qui suit ceci : `// Commentaire a rajouter si vous voulez une execution manuelle.` dans le fichier serveur de la version concernée;
+2. Des `logs` sont en place afin de mieux comprendre l'avancement de chaque jeu. Si vous voulez les desactiver il vous suffit de commenter la ligne qui suit ceci : `// Commentaire a rajouter si vous ne souhaitez pas de logs.` dans les fonctions `verifRecu` et `verifEnvoye`.
+
 ### Prérequis : 
-1. Installer `xterm`. Nous utilisaons le package `xterm` afin de generer nous même des termineaux et ne pas s'embeter avec 6 termineaux directement. A NOTER : Si vous souhaiter gerer vous même l'excution de chaque client il vous suffit de commenter la ligne qui suit ceci : `// Commentaire a rajouter si vous voulez une execution manuelle.` dans le fichier serveur de la version concernée;
+
+1. Installer `xterm`. Nous utilisaons le package `xterm` afin de generer nous même des termineaux et ne pas s'embeter avec 6 termineaux directement.
    ```bash
    sudo apt install xterm
 
