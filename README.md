@@ -10,6 +10,11 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
 ### Versions Non Finies :
 `V4` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) + Possibilité de plusieurs parties  
 
+### Prérequis : 
+1. Installer `xterm`
+   ```bash
+   sudo apt install xterm
+
 ## Pour `V0` : 
 
 ### Compilation des fichiers
@@ -25,7 +30,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
    gcc -o T3N_client_V0 T3N_client_V0.c
    gcc -o main main.c
    clear
-3. Lancer de deux facons différentes : 
+3. Lancer de deux facons différentes (Une avec l'utilisation du terminal créer, l'autre qui va en generer un): 
    ```bash
    ./T3N_serveur_V0
    ./main
@@ -111,5 +116,5 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
 
 3. Lancer de deux facons différentes : 
    ```bash
-   ./T3N_serveur_V4
+   ./T3N_serveur_V34
    ./main
