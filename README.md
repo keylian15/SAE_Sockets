@@ -12,7 +12,7 @@ Dans le but de coder un T3N (Tic Tac Toe Network)
 
 ## A NOTER :
 1. Si vous souhaiter gerer vous même l'excution de chaque client il vous suffit de commenter la ligne qui suit ceci : `// Commentaire a rajouter si vous voulez une execution manuelle.` dans le fichier serveur de la version concernée;
-2. Des `logs` sont en place afin de mieux comprendre l'avancement de chaque jeu. Si vous voulez les desactiver il vous suffit de commenter la ligne qui suit ceci : `// Commentaire a rajouter si vous ne souhaitez pas de logs.` dans les fonctions `verifRecu` et `verifEnvoye`.
+2. Des `logs` sont en place afin de mieux comprendre l'avancement de chaque jeu. Si vous voulez les desactiver il vous suffit de commenter la ligne qui suit ceci : `// Commentaire a rajouter si vous ne souhaitez pas de logs.` dans les fonctions `verifRecu` et `verifEnvoye` du ficiehr `morpion.c`.
 
 ### Prérequis : 
 
