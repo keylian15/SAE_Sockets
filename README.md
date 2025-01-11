@@ -3,15 +3,15 @@
 Ce projet utilise des sockets pour implémenter une communication entre un serveur et un client. 
 Dans le but de coder un T3N (Tic Tac Toe Network)
 ### Versions Finies :
-`V0` - Jeu sans regles client serveur
-`V1` - Jeu avec regles client serveur
-`V2` - Jeu avec regles client client serveur (arbritre)
-`V3` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) 
+`V0` - Jeu sans regles client serveur.
+`V1` - Jeu avec regles client serveur.
+`V2` - Jeu avec regles client client serveur (arbritre).
+`V3` - Jeu avec regles client client serveur (arbritre) spectateur (max 3). 
 ### Versions Non Finies :
-`V4` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) + Possibilité de plusieurs parties  
+`V4` - Jeu avec regles client client serveur (arbritre) spectateur (max 3) + Possibilité de plusieurs parties. Actuellement nous avons des soucis avec les processus fils et la gestion du serveur.
 
 ### Prérequis : 
-1. Installer `xterm`
+1. Installer `xterm`. Nous utilisaons le package `xterm` afin de generer nous même des termineaux et ne pas s'embeter avec 6 termineaux directement. A NOTER : Si vous souhaiter gerer vous même l'excution de chaque client il vous suffit de commenter la ligne qui suit ceci : `// Commentaire a rajouter si vous voulez une execution manuelle.` dans le fichier serveur de la version concernée;
    ```bash
    sudo apt install xterm
 
